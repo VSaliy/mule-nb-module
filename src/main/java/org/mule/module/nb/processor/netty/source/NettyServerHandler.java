@@ -1,4 +1,4 @@
-package org.mule.module.nb.processor.netty;
+package org.mule.module.nb.processor.netty.source;
 
 import org.mule.api.ExceptionPayload;
 import org.mule.api.MuleEvent;
@@ -24,7 +24,7 @@ import org.jboss.netty.handler.codec.string.StringEncoder;
 import org.jboss.netty.handler.stream.ChunkedStream;
 import org.jboss.netty.handler.stream.ChunkedWriteHandler;
 
-public class HttpNettyServerHandler extends SimpleChannelUpstreamHandler
+public class NettyServerHandler extends SimpleChannelUpstreamHandler
 {
 
 
@@ -32,7 +32,7 @@ public class HttpNettyServerHandler extends SimpleChannelUpstreamHandler
 
     protected MuleEventFactory muleEventFactory = null;
 
-    public HttpNettyServerHandler(MuleEventFactory muleEventFactory, NBMessageProcessor nbMessageProcessor)
+    public NettyServerHandler(MuleEventFactory muleEventFactory, NBMessageProcessor nbMessageProcessor)
     {
         this.muleEventFactory = muleEventFactory;
         this.nbMessageProcessor = nbMessageProcessor;

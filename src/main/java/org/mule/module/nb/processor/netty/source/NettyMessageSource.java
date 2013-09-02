@@ -1,7 +1,7 @@
 /**
  *
  */
-package org.mule.module.nb.processor.netty;
+package org.mule.module.nb.processor.netty.source;
 
 import org.mule.MessageExchangePattern;
 import org.mule.api.MuleContext;
@@ -24,7 +24,7 @@ import java.util.concurrent.Executors;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
-public class HttpNettyMessageSource implements MessageSource, Initialisable, Startable, Stoppable, MuleContextAware, FlowConstructAware
+public class NettyMessageSource implements MessageSource, Initialisable, Startable, Stoppable, MuleContextAware, FlowConstructAware
 {
 
     private NBMessageProcessor nbMessageProcessor;
@@ -52,7 +52,7 @@ public class HttpNettyMessageSource implements MessageSource, Initialisable, Sta
         bootstrap.setOption("child.tcpNoDelay", true);
         // Set up the event pipeline factory.
         DefaultMuleEventFactory muleEventFactory = new DefaultMuleEventFactory(new NettyMuleMessageFactory(context), flowConstruct, MessageExchangePattern.REQUEST_RESPONSE);
-        bootstrap.setPipelineFactory(new HttpNettyServerPipelineFactory(nbMessageProcessor, muleEventFactory));
+        bootstrap.setPipelineFactory(new NettyServerPipelineFactory(nbMessageProcessor, muleEventFactory));
     }
 
 

@@ -61,6 +61,13 @@
             <artifactId>netty</artifactId>
             <version>3.6.5.Final</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.ning</groupId>
+            <artifactId>async-http-client</artifactId>
+            <version>1.7.19</version>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

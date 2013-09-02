@@ -1,16 +1,18 @@
 /**
  *
  */
-package org.mule.module.nb.processor.netty;
+package org.mule.module.nb.processor.netty.source;
 
 import org.mule.DefaultMuleMessage;
 import org.mule.api.MuleContext;
 import org.mule.transport.DefaultMuleMessageFactory;
+import org.mule.transport.http.HttpConnector;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 
 public class NettyMuleMessageFactory extends DefaultMuleMessageFactory
@@ -38,13 +40,30 @@ public class NettyMuleMessageFactory extends DefaultMuleMessageFactory
             inboundProperties.put(header.getKey(), header.getValue());
         }
 
+        inboundProperties.put(HttpConnector.HTTP_METHOD_PROPERTY, request.getMethod());
+        inboundProperties.put(HttpConnector.HTTP_REQUEST_PROPERTY, request.getUri());
+        inboundProperties.put(HttpConnector.HTTP_VERSION_PROPERTY, request.getProtocolVersion().toString());
+
         message.addInboundProperties(inboundProperties);
     }
 
     @Override
     protected Object extractPayload(Object transportMessage, String encoding) throws Exception
     {
+        Object payload;
         HttpRequest request = (HttpRequest) transportMessage;
-        return request.getContent();
+
+
+        // If http method is GET we use the request uri as the payload.
+        if (request.getMethod().equals(HttpMethod.GET))
+        {
+            payload = request.getUri();
+        }
+        else
+        {
+            payload = request.getContent();
+        }
+
+        return payload;
     }
 }
