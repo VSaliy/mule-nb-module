@@ -3,6 +3,7 @@ package org.mule.module.nb.processor;
 import org.mule.api.GlobalNameableObject;
 import org.mule.api.MuleContext;
 import org.mule.api.MuleException;
+import org.mule.api.ThreadSafeAccess;
 import org.mule.api.construct.Pipeline;
 import org.mule.api.processor.DefaultMessageProcessorPathElement;
 import org.mule.api.processor.InterceptingMessageProcessor;
@@ -55,6 +56,7 @@ public class NBFlow extends AbstractFlowConstruct implements Pipeline
     @Override
     protected void doStart() throws MuleException
     {
+        ThreadSafeAccess.AccessControl.setAssertMessageAccess(false);
         super.doStart();
         startIfStartable(nbChain);
         startIfStartable(messageSource);
@@ -107,14 +109,7 @@ public class NBFlow extends AbstractFlowConstruct implements Pipeline
     {
         MessageProcessorChainBuilder messageProcessorChainBuilder = getChainBuilder();
         new SynchronousProcessingStrategy().configureProcessors(getMessageProcessors(),
-                                                    new ProcessingStrategy.StageNameSource()
-                                                    {
-                                                        @Override
-                                                        public String getName()
-                                                        {
-                                                            return NBFlow.this.getName();
-                                                        }
-                                                    }, messageProcessorChainBuilder, muleContext);
+                                                                new NBStageNameSource(getName()), messageProcessorChainBuilder, muleContext);
         return messageProcessorChainBuilder.build();
     }
 
@@ -211,5 +206,22 @@ public class NBFlow extends AbstractFlowConstruct implements Pipeline
             esPrefix = globalName + "/es";
         }
         return esPrefix;
+    }
+
+    private class NBStageNameSource implements ProcessingStrategy.StageNameSource
+    {
+
+        private String name;
+
+        public NBStageNameSource(String name)
+        {
+            this.name = name;
+        }
+
+        @Override
+        public String getName()
+        {
+            return this.name;
+        }
     }
 }

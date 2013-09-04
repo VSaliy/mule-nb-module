@@ -10,7 +10,7 @@
     <nb:flow name="test">
         <nb:netty-source port="1234"/>
         <logger message="Payload is #[payload]"/>
-        <nb:netty-client url="http://www.google.com.ar"/>
+        <nb:netty-client baseUrl="http://www.google.com.ar" uri="#[payload]"/>
         <logger message="#[payload]"/>
     </nb:flow>
 
