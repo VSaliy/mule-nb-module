@@ -1,18 +1,14 @@
 package org.mule.module.nb.netty.source;
 
-import org.mule.api.ExceptionPayload;
 import org.mule.api.MuleEvent;
 import org.mule.api.MuleException;
 import org.mule.api.MuleMessage;
-import org.mule.module.nb.processor.MessageProcessorCallback;
 import org.mule.module.nb.MuleEventFactory;
+import org.mule.module.nb.processor.MessageProcessorCallback;
 import org.mule.module.nb.processor.NBMessageProcessor;
-import org.mule.util.ExceptionUtils;
 
-import java.io.InputStream;
 import java.nio.charset.Charset;
 
-import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFutureListener;
@@ -21,10 +17,12 @@ import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.handler.codec.http.DefaultHttpResponse;
 import org.jboss.netty.handler.codec.http.HttpRequest;
-import org.jboss.netty.handler.codec.string.StringEncoder;
-import org.jboss.netty.handler.stream.ChunkedStream;
-import org.jboss.netty.handler.stream.ChunkedWriteHandler;
+import org.jboss.netty.handler.codec.http.HttpResponse;
+import org.jboss.netty.handler.codec.http.HttpResponseStatus;
+import org.jboss.netty.handler.codec.http.HttpVersion;
+import org.jboss.netty.util.CharsetUtil;
 
 public class NettyServerHandler extends SimpleChannelUpstreamHandler
 {
@@ -46,6 +44,7 @@ public class NettyServerHandler extends SimpleChannelUpstreamHandler
     {
         final HttpRequest request = (HttpRequest) event.getMessage();
 
+        System.out.println("NettyServerHandler.messageReceived");
 
         final Channel channel = event.getChannel();
         try
@@ -56,62 +55,22 @@ public class NettyServerHandler extends SimpleChannelUpstreamHandler
                 @Override
                 public void onSuccess(MuleEvent result)
                 {
-
                     try
                     {
                         final MuleMessage message = result.getMessage();
-                        final ExceptionPayload exceptionPayload = message.getExceptionPayload();
-                        if (exceptionPayload == null)
-                        {
-                            // happy path with no errors
-                            final Object payload = message.getPayload();
-                            if (payload instanceof InputStream)
-                            {
-                                // wrap incoming streams
-                                final ChunkedStream stream = new ChunkedStream(message.getPayload(InputStream.class));
-                                channel.getPipeline().addLast("streamer", new ChunkedWriteHandler());
-                                channel.write(stream).addListener(ChannelFutureListener.CLOSE);
-                            }
-                            else if (payload instanceof ChunkedStream)
-                            {
-                                // chunked stream doesn't implement InputStream
-                                channel.getPipeline().addLast("streamer", new ChunkedWriteHandler());
-                                channel.write(payload).addListener(ChannelFutureListener.CLOSE);
-                            }
-                            else if (payload instanceof ChannelBuffer)
-                            {
-                                // native ChannelBuffer format
-                                channel.write(payload).addListener(ChannelFutureListener.CLOSE);
-                            }
-                            else
-                            {
-                                // otherwise dump bytes
-                                final ChannelBuffer out = ChannelBuffers.wrappedBuffer(message.getPayloadAsBytes());
-                                channel.write(out).addListener(ChannelFutureListener.CLOSE);
-
-                            }
-                        }
-                        else
-                        {
-                            // got an exception payload in the response
-                            // send an error message from the root exception
-                            channel.getPipeline().addLast("encoder", new StringEncoder(Charset.defaultCharset()));
-                            final String rootCause = ExceptionUtils.getRootCauseMessage(exceptionPayload.getException());
-
-                            // TODO check bytes encoding
-                            channel.write(rootCause).addListener(ChannelFutureListener.CLOSE);
-                        }
+                        HttpResponse response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
+                        response.setHeader("Content-Type", "text/html");
+                        response.setContent(ChannelBuffers.copiedBuffer(message.getPayload().toString(), CharsetUtil.UTF_8));
+                        channel.write(response).addListener(ChannelFutureListener.CLOSE);
                     }
                     catch (Exception e)
                     {
                         //Todo Handle exception
                         e.printStackTrace();
                     }
-                    finally
-                    {
-                        channel.close();
-                    }
+
                 }
+
                 @Override
                 public void onException(MuleEvent event, MuleException e)
                 {
@@ -122,8 +81,9 @@ public class NettyServerHandler extends SimpleChannelUpstreamHandler
         catch (Exception e)
         {
             e.printStackTrace();
-            channel.close();
+
         }
+        System.out.println("NettyServerHandler.messageReceived + finished");
 
     }
 
@@ -131,15 +91,16 @@ public class NettyServerHandler extends SimpleChannelUpstreamHandler
     @Override
     public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception
     {
-
-        super.channelClosed(ctx, e);
+        System.out.println("NettyServerHandler.channelClosed");
+        //super.channelClosed(ctx, e);
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception
     {
+        System.out.println("NettyServerHandler.exceptionCaught");
         e.getCause().printStackTrace();
-        super.exceptionCaught(ctx, e);
+        //super.exceptionCaught(ctx, e);
     }
 }
 
