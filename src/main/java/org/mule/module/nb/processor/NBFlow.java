@@ -56,6 +56,7 @@ public class NBFlow extends AbstractFlowConstruct implements Pipeline
     @Override
     protected void doStart() throws MuleException
     {
+        //TODO HACK TWO use this to avoid exception when changing event from thread to thread :(
         ThreadSafeAccess.AccessControl.setAssertMessageAccess(false);
         super.doStart();
         startIfStartable(nbChain);
@@ -108,6 +109,7 @@ public class NBFlow extends AbstractFlowConstruct implements Pipeline
     private MessageProcessor buildChain() throws MuleException
     {
         MessageProcessorChainBuilder messageProcessorChainBuilder = getChainBuilder();
+        //TODO HACK ONE use allways Synchronous processing strategy :(
         new SynchronousProcessingStrategy().configureProcessors(getMessageProcessors(),
                                                                 new NBStageNameSource(getName()), messageProcessorChainBuilder, muleContext);
         return messageProcessorChainBuilder.build();

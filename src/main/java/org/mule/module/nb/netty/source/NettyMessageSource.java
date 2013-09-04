@@ -22,9 +22,6 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 
 import org.jboss.netty.bootstrap.ServerBootstrap;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
 public class NettyMessageSource implements MessageSource, Initialisable, Startable, Stoppable, MuleContextAware, FlowConstructAware
@@ -73,16 +70,7 @@ public class NettyMessageSource implements MessageSource, Initialisable, Startab
     public void start() throws MuleException
     {
         // Bind and start to accept incoming connections.
-        ChannelFuture bind = bootstrap.bindAsync(new InetSocketAddress(port));
-        bind.addListener(new ChannelFutureListener()
-        {
-            @Override
-            public void operationComplete(ChannelFuture future) throws Exception
-            {
-                Channel channel = future.getChannel();
-            }
-        });
-
+        bootstrap.bind(new InetSocketAddress(port));
     }
 
     @Override

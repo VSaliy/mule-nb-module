@@ -9,8 +9,6 @@ import org.mule.module.nb.processor.NBMessageProcessor;
 import org.mule.transport.http.HttpConnector;
 
 import java.nio.charset.Charset;
-import java.util.Map;
-import java.util.Set;
 
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
@@ -64,15 +62,15 @@ public class NettyServerHandler extends SimpleChannelUpstreamHandler
                         HttpResponse response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
                         response.setHeader("Content-Type", message.getOutboundProperty("Content-Type"));
                         Object outboundProperty = message.getOutboundProperty(HttpConnector.HTTP_HEADERS);
-                        if (outboundProperty instanceof Map)
-                        {
-                            Set<Map.Entry<String, Object>> entries = ((Map<String, Object>) outboundProperty).entrySet();
-                            for (Map.Entry<String, Object> entry : entries)
-                            {
-                                response.setHeader(entry.getKey(), entry.getValue());
-                            }
-                        }
-                        response.setContent(ChannelBuffers.copiedBuffer(message.getPayload().toString(), CharsetUtil.UTF_8));
+                        //if (outboundProperty instanceof Map)
+                        //{
+                        //    Set<Map.Entry<String, Object>> entries = ((Map<String, Object>) outboundProperty).entrySet();
+                        //    for (Map.Entry<String, Object> entry : entries)
+                        //    {
+                        //        response.setHeader(entry.getKey(), entry.getValue());
+                        //    }
+                        //}
+                        response.setContent(ChannelBuffers.copiedBuffer(message.getPayload().toString(), CharsetUtil.ISO_8859_1));
                         channel.write(response).addListener(ChannelFutureListener.CLOSE);
                     }
                     catch (Exception e)
