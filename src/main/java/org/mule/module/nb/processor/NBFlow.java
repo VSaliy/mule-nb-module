@@ -64,7 +64,7 @@ public class NBFlow extends AbstractFlowConstruct implements Pipeline
     @Override
     protected void doInitialise() throws MuleException
     {
-//        super.doInitialise();
+        super.doInitialise();
 
         if (getChainBuilder() == null)
         {
@@ -106,13 +106,13 @@ public class NBFlow extends AbstractFlowConstruct implements Pipeline
     private MessageProcessor buildChain() throws MuleException
     {
         MessageProcessorChainBuilder messageProcessorChainBuilder = getChainBuilder();
-        getProcessingStrategy().configureProcessors(getMessageProcessors(),
+        new SynchronousProcessingStrategy().configureProcessors(getMessageProcessors(),
                                                     new ProcessingStrategy.StageNameSource()
                                                     {
                                                         @Override
                                                         public String getName()
                                                         {
-                                                            return getName();
+                                                            return NBFlow.this.getName();
                                                         }
                                                     }, messageProcessorChainBuilder, muleContext);
         return messageProcessorChainBuilder.build();

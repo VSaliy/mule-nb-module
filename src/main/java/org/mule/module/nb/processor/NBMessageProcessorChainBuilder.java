@@ -10,7 +10,6 @@ import org.mule.api.processor.MessageProcessor;
 import org.mule.api.processor.MessageProcessorBuilder;
 import org.mule.api.processor.MessageProcessorChain;
 import org.mule.api.processor.MessageProcessorChainBuilder;
-import org.mule.module.nb.NBMessageProcessorChain;
 import org.mule.processor.chain.AbstractMessageProcessorChainBuilder;
 
 import java.util.ArrayList;

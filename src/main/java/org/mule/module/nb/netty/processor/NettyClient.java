@@ -1,12 +1,12 @@
 /**
  *
  */
-package org.mule.module.nb.processor.netty.client;
+package org.mule.module.nb.netty.processor;
 
 import org.mule.api.MessagingException;
 import org.mule.api.MuleEvent;
 import org.mule.api.MuleException;
-import org.mule.module.nb.MessageProcessorCallback;
+import org.mule.module.nb.processor.MessageProcessorCallback;
 import org.mule.module.nb.processor.NBMessageProcessor;
 
 import com.ning.http.client.AsyncCompletionHandler;
@@ -32,7 +32,7 @@ public class NettyClient implements NBMessageProcessor
                 @Override
                 public Response onCompleted(Response response) throws Exception
                 {
-                    event.getMessage().setPayload(response);
+                    event.getMessage().setPayload(response.getResponseBody());
                     callback.onSuccess(event);
                     return response;
                 }

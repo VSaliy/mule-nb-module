@@ -1,14 +1,13 @@
 /**
  *
  */
-package org.mule.module.nb;
+package org.mule.module.nb.processor;
 
 import org.mule.VoidMuleEvent;
 import org.mule.api.MessagingException;
 import org.mule.api.MuleEvent;
 import org.mule.api.MuleException;
 import org.mule.api.processor.MessageProcessor;
-import org.mule.module.nb.processor.NBMessageProcessor;
 import org.mule.processor.chain.AbstractMessageProcessorChain;
 
 import java.util.Iterator;
@@ -56,7 +55,18 @@ public class NBMessageProcessorChain extends AbstractMessageProcessorChain imple
             try
             {
                 final MessageProcessorChainCallback chainCallback = new MessageProcessorChainCallback(messageProcessors, next, callback);
-                processedEvent = invokeMessageProcessor(processedEvent, next, chainCallback);
+                chainListener.firePreInvokeMessageProcessor(processedEvent, next);
+                if (next instanceof NBMessageProcessor)
+                {
+                    ((NBMessageProcessor) next).process(processedEvent, chainCallback);
+                    //Return since is asynch.
+                    return;
+                }
+                else
+                {
+                    processedEvent = next.process(processedEvent);
+                    chainListener.firePostInvokeMessageProcessor(processedEvent, next);
+                }
             }
             catch (MuleException e)
             {
@@ -71,22 +81,6 @@ public class NBMessageProcessorChain extends AbstractMessageProcessorChain imple
             }
         }
         callback.onSuccess(processedEvent);
-    }
-
-
-    private MuleEvent invokeMessageProcessor(MuleEvent processedEvent, MessageProcessor next, MessageProcessorChainCallback chainCallback) throws MuleException
-    {
-        chainListener.firePreInvokeMessageProcessor(processedEvent, next);
-        if (next instanceof NBMessageProcessor)
-        {
-            ((NBMessageProcessor) next).process(processedEvent, chainCallback);
-        }
-        else
-        {
-            processedEvent = next.process(processedEvent);
-            chainListener.firePostInvokeMessageProcessor(processedEvent, next);
-        }
-        return processedEvent;
     }
 
 

@@ -1,4 +1,4 @@
-package org.mule.module.nb.processor.netty.source;
+package org.mule.module.nb.netty.source;
 
 import static org.jboss.netty.channel.Channels.*;
 

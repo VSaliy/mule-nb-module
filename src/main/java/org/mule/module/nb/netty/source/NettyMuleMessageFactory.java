@@ -1,7 +1,7 @@
 /**
  *
  */
-package org.mule.module.nb.processor.netty.source;
+package org.mule.module.nb.netty.source;
 
 import org.mule.DefaultMuleMessage;
 import org.mule.api.MuleContext;

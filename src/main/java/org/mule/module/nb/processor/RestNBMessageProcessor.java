@@ -5,7 +5,6 @@ package org.mule.module.nb.processor;
 
 import org.mule.api.MuleEvent;
 import org.mule.api.MuleException;
-import org.mule.module.nb.MessageProcessorCallback;
 
 public class RestNBMessageProcessor implements NBMessageProcessor
 {

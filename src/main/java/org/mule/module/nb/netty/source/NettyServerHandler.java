@@ -1,10 +1,10 @@
-package org.mule.module.nb.processor.netty.source;
+package org.mule.module.nb.netty.source;
 
 import org.mule.api.ExceptionPayload;
 import org.mule.api.MuleEvent;
 import org.mule.api.MuleException;
 import org.mule.api.MuleMessage;
-import org.mule.module.nb.MessageProcessorCallback;
+import org.mule.module.nb.processor.MessageProcessorCallback;
 import org.mule.module.nb.MuleEventFactory;
 import org.mule.module.nb.processor.NBMessageProcessor;
 import org.mule.util.ExceptionUtils;
@@ -17,6 +17,8 @@ import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.jboss.netty.handler.codec.http.HttpRequest;
@@ -48,7 +50,6 @@ public class NettyServerHandler extends SimpleChannelUpstreamHandler
         final Channel channel = event.getChannel();
         try
         {
-            // TODO create a NettyMuleMessageFactory
             final MuleEvent muleEvent = muleEventFactory.create(request, Charset.defaultCharset().name());
             nbMessageProcessor.process(muleEvent, new MessageProcessorCallback()
             {
@@ -127,6 +128,19 @@ public class NettyServerHandler extends SimpleChannelUpstreamHandler
     }
 
 
+    @Override
+    public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception
+    {
+
+        super.channelClosed(ctx, e);
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception
+    {
+        e.getCause().printStackTrace();
+        super.exceptionCaught(ctx, e);
+    }
 }
 
 
