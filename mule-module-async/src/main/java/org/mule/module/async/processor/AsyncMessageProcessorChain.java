@@ -29,7 +29,9 @@ public class AsyncMessageProcessorChain extends AbstractMessageProcessorChain im
     @Override
     protected MuleEvent doProcess(MuleEvent event) throws MuleException
     {
-        return null;
+        final MuleEventFuture future = new MuleEventFuture();
+        process(event, new FutureMessageProcessorCallback(future));
+        return future.get();
     }
 
 

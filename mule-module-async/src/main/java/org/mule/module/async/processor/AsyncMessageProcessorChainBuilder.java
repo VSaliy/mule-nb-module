@@ -21,6 +21,10 @@ public class AsyncMessageProcessorChainBuilder extends AbstractMessageProcessorC
 {
 
 
+    public AsyncMessageProcessorChainBuilder()
+    {
+    }
+
     public AsyncMessageProcessorChainBuilder(FlowConstruct flowConstruct)
     {
         this.flowConstruct = flowConstruct;

@@ -28,7 +28,7 @@ public class AsyncFlow extends AbstractFlowConstruct implements Pipeline
 
 
     private MessageSource messageSource;
-    private MessageProcessor nbChain;
+    private AsyncMessageProcessor asyncChain;
     private List<MessageProcessor> messageProcessors = Collections.emptyList();
     private Map<MessageProcessor, String> flowMap = new LinkedHashMap<MessageProcessor, String>();
     private ProcessingStrategy processingStrategy ;
@@ -59,7 +59,7 @@ public class AsyncFlow extends AbstractFlowConstruct implements Pipeline
         //TODO HACK TWO use this to avoid exception when changing event from thread to thread :(
         ThreadSafeAccess.AccessControl.setAssertMessageAccess(false);
         super.doStart();
-        startIfStartable(nbChain);
+        startIfStartable(asyncChain);
         startIfStartable(messageSource);
         createFlowMap();
     }
@@ -77,19 +77,24 @@ public class AsyncFlow extends AbstractFlowConstruct implements Pipeline
             setProcessingStrategy(new SynchronousProcessingStrategy());
         }
 
-        nbChain = buildChain();
+        asyncChain = buildChain();
 
         if (messageSource != null)
         {
             // Wrap chain to decouple lifecycle
-            messageSource.setListener(nbChain);
+            messageSource.setListener(asyncChain);
         }
 
 
         injectFlowConstructMuleContext(messageSource);
-        injectFlowConstructMuleContext(nbChain);
+        injectFlowConstructMuleContext(asyncChain);
         initialiseIfInitialisable(messageSource);
-        initialiseIfInitialisable(nbChain);
+        initialiseIfInitialisable(asyncChain);
+    }
+
+    public AsyncMessageProcessor getAsyncChain()
+    {
+        return asyncChain;
     }
 
     private void createFlowMap()
@@ -106,13 +111,12 @@ public class AsyncFlow extends AbstractFlowConstruct implements Pipeline
 
     }
 
-    private MessageProcessor buildChain() throws MuleException
+    private AsyncMessageProcessor buildChain() throws MuleException
     {
         MessageProcessorChainBuilder messageProcessorChainBuilder = getChainBuilder();
-        //TODO HACK ONE use allways Synchronous processing strategy :(
-        new SynchronousProcessingStrategy().configureProcessors(getMessageProcessors(),
-                                                                new NBStageNameSource(getName()), messageProcessorChainBuilder, muleContext);
-        return messageProcessorChainBuilder.build();
+        getProcessingStrategy().configureProcessors(getMessageProcessors(),
+                                                    new NBStageNameSource(getName()), messageProcessorChainBuilder, muleContext);
+        return (AsyncMessageProcessor) messageProcessorChainBuilder.build();
     }
 
 

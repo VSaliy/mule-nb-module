@@ -2,17 +2,16 @@ package org.mule.module.async.config;
 
 import org.mule.api.config.MuleProperties;
 import org.mule.config.spring.parsers.generic.OrphanDefinitionParser;
-import org.mule.config.spring.util.ProcessingStrategyUtils;
 import org.mule.module.async.processor.AsyncFlow;
 
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
-public class RestFlowDefinitionParser extends OrphanDefinitionParser
+public class AsyncFlowDefinitionParser extends OrphanDefinitionParser
 {
 
-    public RestFlowDefinitionParser()
+    public AsyncFlowDefinitionParser()
     {
         super(AsyncFlow.class, true);
         addIgnored("abstract");
@@ -25,8 +24,6 @@ public class RestFlowDefinitionParser extends OrphanDefinitionParser
     {
         builder.addConstructorArgValue(element.getAttribute(ATTRIBUTE_NAME));
         builder.addConstructorArgReference(MuleProperties.OBJECT_MULE_CONTEXT);
-        ProcessingStrategyUtils.configureProcessingStrategy(element, builder,
-                                                            ProcessingStrategyUtils.QUEUED_ASYNC_PROCESSING_STRATEGY);
         super.doParse(element, parserContext, builder);
     }
 }

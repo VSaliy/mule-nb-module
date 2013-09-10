@@ -3,10 +3,12 @@
  */
 package org.mule.module.async.processor;
 
+import org.mule.api.MessagingException;
 import org.mule.api.MuleContext;
 import org.mule.api.MuleEvent;
 import org.mule.api.MuleException;
 import org.mule.api.context.MuleContextAware;
+import org.mule.api.processor.MessageProcessor;
 
 public abstract class AbstractAsyncMessageProcessor implements AsyncMessageProcessor, MuleContextAware
 {
@@ -30,6 +32,30 @@ public abstract class AbstractAsyncMessageProcessor implements AsyncMessageProce
         final MuleEventFuture future = new MuleEventFuture();
         process(event, new FutureMessageProcessorCallback(future));
         return future.get();
+    }
+
+    public static void doProcess(MessageProcessor messageProcessor, MuleEvent event, MessageProcessorCallback callback)
+    {
+        if (messageProcessor instanceof AsyncMessageProcessor)
+        {
+            ((AsyncMessageProcessor) messageProcessor).process(event, callback);
+        }
+        else
+        {
+            try
+            {
+                MuleEvent process = messageProcessor.process(event);
+                callback.onSuccess(process);
+            }
+            catch (MuleException e)
+            {
+                callback.onException(event, e);
+            }
+            catch (Exception e)
+            {
+                callback.onException(event, new MessagingException(event, e));
+            }
+        }
     }
 
 }

@@ -31,6 +31,26 @@
 
 
 
+    <xsd:complexType name="selectiveOutboundRouterType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractRoutingMessageProcessorType">
+                <xsd:sequence>
+                    <xsd:element name="when" type="mule:whenMessageProcessorFilterPairType" minOccurs="1" maxOccurs="unbounded"/>
+                    <xsd:element name="otherwise" type="mule:otherwiseMessageProcessorFilterPairType" minOccurs="0" maxOccurs="1"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="choice" type="selectiveOutboundRouterType"
+                 substitutionGroup="mule:abstract-routing-message-processor">
+        <xsd:annotation>
+            <xsd:documentation>
+                Sends the message to the first endpoint whose condition has been satisfied. If no conditions were satisfied, sends to the configured default endpoint if configured, or throws an exception if not configured.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
 
     <xsd:element name="netty-client" type="nettyClientProcessorType" substitutionGroup="mule:abstract-message-processor">
         <xsd:annotation>
