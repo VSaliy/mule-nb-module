@@ -1,24 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <xsd:schema xmlns="http://www.mulesoft.org/schema/mule/async" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:mule="http://www.mulesoft.org/schema/mule/core" xmlns:schemadoc="http://www.mulesoft.org/schema/mule/schemadoc"
-    xmlns:beans="http://www.springframework.org/schema/beans" targetNamespace="http://www.mulesoft.org/schema/mule/async"
-    elementFormDefault="qualified" attributeFormDefault="unqualified">
+            xmlns:mule="http://www.mulesoft.org/schema/mule/core"
+            xmlns:schemadoc="http://www.mulesoft.org/schema/mule/schemadoc"
+            xmlns:beans="http://www.springframework.org/schema/beans"
+            targetNamespace="http://www.mulesoft.org/schema/mule/async"
+            elementFormDefault="qualified" attributeFormDefault="unqualified">
 
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
-    <xsd:import namespace="http://www.springframework.org/schema/beans" schemaLocation="http://www.springframework.org/schema/beans/spring-beans-3.1.xsd" />
-    <xsd:import namespace="http://www.mulesoft.org/schema/mule/core" schemaLocation="http://www.mulesoft.org/schema/mule/core/3.4/mule.xsd" />
-    <xsd:import namespace="http://www.mulesoft.org/schema/mule/schemadoc" schemaLocation="http://www.mulesoft.org/schema/mule/schemadoc/3.4/mule-schemadoc.xsd" />
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:import namespace="http://www.springframework.org/schema/beans"
+                schemaLocation="http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"/>
+    <xsd:import namespace="http://www.mulesoft.org/schema/mule/core"
+                schemaLocation="http://www.mulesoft.org/schema/mule/core/3.4/mule.xsd"/>
+    <xsd:import namespace="http://www.mulesoft.org/schema/mule/schemadoc"
+                schemaLocation="http://www.mulesoft.org/schema/mule/schemadoc/3.4/mule-schemadoc.xsd"/>
 
     <xsd:annotation>
         <xsd:documentation>
-           Asynchronous Message Processor
+            Asynchronous Message Processor
         </xsd:documentation>
         <xsd:appinfo>
             <schemadoc:short-name>Async</schemadoc:short-name>
             <schemadoc:page-title>Async Module</schemadoc:page-title>
         </xsd:appinfo>
     </xsd:annotation>
-
 
 
     <xsd:element name="flow" type="mule:flowType" substitutionGroup="mule:flow">
@@ -30,13 +34,35 @@
     </xsd:element>
 
 
+    <xsd:element name="foreach" type="foreachProcessorType"
+                 substitutionGroup="mule:abstract-message-processor"/>
+    <xsd:complexType name="foreachProcessorType">
+        <xsd:complexContent>
+
+            <xsd:extension base="mule:abstractMessageProcessorType">
+                <xsd:sequence>
+                    <xsd:group ref="mule:messageProcessorOrOutboundEndpoint" minOccurs="1" maxOccurs="unbounded"/>
+                </xsd:sequence>
+                <xsd:attribute name="collection" use="optional" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            An expression to that returns a java collection, object array, map or DOM nodes.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
 
     <xsd:complexType name="selectiveOutboundRouterType">
         <xsd:complexContent>
             <xsd:extension base="mule:abstractRoutingMessageProcessorType">
                 <xsd:sequence>
-                    <xsd:element name="when" type="mule:whenMessageProcessorFilterPairType" minOccurs="1" maxOccurs="unbounded"/>
-                    <xsd:element name="otherwise" type="mule:otherwiseMessageProcessorFilterPairType" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="when" type="mule:whenMessageProcessorFilterPairType" minOccurs="1"
+                                 maxOccurs="unbounded"/>
+                    <xsd:element name="otherwise" type="mule:otherwiseMessageProcessorFilterPairType" minOccurs="0"
+                                 maxOccurs="1"/>
                 </xsd:sequence>
             </xsd:extension>
         </xsd:complexContent>
@@ -46,13 +72,18 @@
                  substitutionGroup="mule:abstract-routing-message-processor">
         <xsd:annotation>
             <xsd:documentation>
-                Sends the message to the first endpoint whose condition has been satisfied. If no conditions were satisfied, sends to the configured default endpoint if configured, or throws an exception if not configured.
+                Sends the message to the first endpoint whose condition has been satisfied. If no conditions were
+                satisfied, sends to the configured default endpoint if configured, or throws an exception if not
+                configured.
             </xsd:documentation>
         </xsd:annotation>
     </xsd:element>
 
 
-    <xsd:element name="netty-client" type="nettyClientProcessorType" substitutionGroup="mule:abstract-message-processor">
+    <!-- Netty Module -->
+
+    <xsd:element name="netty-client" type="nettyClientProcessorType"
+                 substitutionGroup="mule:abstract-message-processor">
         <xsd:annotation>
             <xsd:documentation>
                 A rest routing message processor.

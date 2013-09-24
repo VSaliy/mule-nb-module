@@ -1,4 +1,4 @@
-package org.mule.module.async;
+package org.mule.module.async.internal;
 
 import org.mule.api.MuleEvent;
 

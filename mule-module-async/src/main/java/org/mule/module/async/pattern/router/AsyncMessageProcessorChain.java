@@ -1,13 +1,18 @@
 /**
  *
  */
-package org.mule.module.async.processor;
+package org.mule.module.async.pattern.router;
 
 import org.mule.VoidMuleEvent;
 import org.mule.api.MessagingException;
 import org.mule.api.MuleEvent;
 import org.mule.api.MuleException;
 import org.mule.api.processor.MessageProcessor;
+import org.mule.module.async.processor.AsyncMessageProcessor;
+import org.mule.module.async.internal.processor.AsyncMessageProcessorChainListener;
+import org.mule.module.async.internal.processor.FutureMessageProcessorCallback;
+import org.mule.module.async.processor.MessageProcessorCallback;
+import org.mule.module.async.internal.processor.MuleEventFuture;
 import org.mule.processor.chain.AbstractMessageProcessorChain;
 
 import java.util.Iterator;

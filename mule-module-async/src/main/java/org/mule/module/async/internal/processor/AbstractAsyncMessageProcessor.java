@@ -1,7 +1,7 @@
 /**
  *
  */
-package org.mule.module.async.processor;
+package org.mule.module.async.internal.processor;
 
 import org.mule.api.MessagingException;
 import org.mule.api.MuleContext;
@@ -9,6 +9,8 @@ import org.mule.api.MuleEvent;
 import org.mule.api.MuleException;
 import org.mule.api.context.MuleContextAware;
 import org.mule.api.processor.MessageProcessor;
+import org.mule.module.async.processor.AsyncMessageProcessor;
+import org.mule.module.async.processor.MessageProcessorCallback;
 
 public abstract class AbstractAsyncMessageProcessor implements AsyncMessageProcessor, MuleContextAware
 {

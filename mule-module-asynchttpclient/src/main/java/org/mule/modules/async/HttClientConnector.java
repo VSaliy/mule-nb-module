@@ -7,6 +7,7 @@ import org.mule.api.annotations.Module;
 import org.mule.api.annotations.Processor;
 import org.mule.api.annotations.param.Default;
 import org.mule.api.annotations.param.Optional;
+import org.mule.module.async.devkit.AsyncCallback;
 
 /**
  * Cloud Connector
@@ -18,17 +19,19 @@ public class HttClientConnector
 {
 
     /**
-     *
      * Execute get method over http
-     *
+     * <p/>
      * {@sample.xml ../../../doc/async-http-client-connector.xml.sample http-client:get}
-     * @param uri The uri
-     * @return The execution result
+     *
+     * @param uri      The uri
+     * @param callback The callback of the invocation
      */
-    @Processor(asynch = true)
-    public Object get(@Optional @Default(value = "#[payload]") String uri){
+    @Processor(async = true)
+    public void get(@Optional @Default(value = "#[payload]") String uri, AsyncCallback callback)
+    {
 
-        return null;
+
+        callback.onSuccess("Hello World");
 
     }
 

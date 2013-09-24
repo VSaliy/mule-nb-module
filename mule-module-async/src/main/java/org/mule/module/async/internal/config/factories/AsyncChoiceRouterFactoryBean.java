@@ -1,10 +1,10 @@
 /**
  *
  */
-package org.mule.module.async.config.factories;
+package org.mule.module.async.internal.config.factories;
 
 import org.mule.api.processor.MessageProcessor;
-import org.mule.module.async.router.AsyncChoiceRouter;
+import org.mule.module.async.pattern.router.AsyncChoiceRouter;
 import org.mule.routing.MessageProcessorFilterPair;
 
 import java.util.Collection;

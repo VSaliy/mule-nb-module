@@ -1,14 +1,14 @@
 /**
  *
  */
-package org.mule.module.async.config.factories;
+package org.mule.module.async.internal.config.factories;
 
 import org.mule.api.MuleContext;
 import org.mule.api.context.MuleContextAware;
 import org.mule.api.processor.MessageProcessor;
 import org.mule.api.processor.MessageProcessorChainBuilder;
 import org.mule.api.routing.filter.Filter;
-import org.mule.module.async.processor.AsyncMessageProcessorChainBuilder;
+import org.mule.module.async.internal.processor.AsyncMessageProcessorChainBuilder;
 import org.mule.processor.chain.AbstractMessageProcessorChainBuilder;
 import org.mule.routing.MessageProcessorFilterPair;
 import org.mule.routing.filters.AcceptAllFilter;

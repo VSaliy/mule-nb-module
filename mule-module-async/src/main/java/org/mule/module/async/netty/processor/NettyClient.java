@@ -6,7 +6,7 @@ package org.mule.module.async.netty.processor;
 import org.mule.api.MessagingException;
 import org.mule.api.MuleEvent;
 import org.mule.api.transport.PropertyScope;
-import org.mule.module.async.processor.AbstractAsyncMessageProcessor;
+import org.mule.module.async.internal.processor.AbstractAsyncMessageProcessor;
 import org.mule.module.async.processor.MessageProcessorCallback;
 import org.mule.transport.http.HttpConnector;
 

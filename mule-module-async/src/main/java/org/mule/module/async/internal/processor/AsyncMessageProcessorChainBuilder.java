@@ -1,15 +1,15 @@
 /**
  *
  */
-package org.mule.module.async.processor;
+package org.mule.module.async.internal.processor;
 
 import org.mule.api.MuleException;
 import org.mule.api.construct.FlowConstruct;
 import org.mule.api.processor.InterceptingMessageProcessor;
 import org.mule.api.processor.MessageProcessor;
 import org.mule.api.processor.MessageProcessorBuilder;
-import org.mule.api.processor.MessageProcessorChain;
 import org.mule.api.processor.MessageProcessorChainBuilder;
+import org.mule.module.async.pattern.router.AsyncMessageProcessorChain;
 import org.mule.processor.chain.AbstractMessageProcessorChainBuilder;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public class AsyncMessageProcessorChainBuilder extends AbstractMessageProcessorC
      * processor we create a DefaultMessageProcessorChain using the temporary list and set it as a listener of
      * the intercepting message processor and then we continue with the algorithm
      */
-    public MessageProcessorChain build() throws MuleException
+    public AsyncMessageProcessorChain build() throws MuleException
     {
         LinkedList<MessageProcessor> tempList = new LinkedList<MessageProcessor>();
 
@@ -87,7 +87,7 @@ public class AsyncMessageProcessorChainBuilder extends AbstractMessageProcessorC
     }
 
 
-    protected MessageProcessorChain createMessageProcessorChain(LinkedList<MessageProcessor> tempList)
+    protected AsyncMessageProcessorChain createMessageProcessorChain(LinkedList<MessageProcessor> tempList)
     {
         return new AsyncMessageProcessorChain("Non Blocking Chain of " + name,
                                            new ArrayList<MessageProcessor>(tempList));

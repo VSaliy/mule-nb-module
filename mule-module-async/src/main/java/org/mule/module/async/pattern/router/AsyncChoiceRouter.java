@@ -1,18 +1,15 @@
 /**
  *
  */
-package org.mule.module.async.router;
+package org.mule.module.async.pattern.router;
 
 import org.mule.api.MuleEvent;
 import org.mule.api.MuleException;
 import org.mule.api.MuleRuntimeException;
-import org.mule.api.construct.FlowConstruct;
 import org.mule.api.construct.FlowConstructAware;
 import org.mule.api.context.MuleContextAware;
 import org.mule.api.lifecycle.Disposable;
 import org.mule.api.lifecycle.Initialisable;
-import org.mule.api.lifecycle.InitialisationException;
-import org.mule.api.lifecycle.Lifecycle;
 import org.mule.api.lifecycle.Startable;
 import org.mule.api.lifecycle.Stoppable;
 import org.mule.api.processor.MessageProcessor;
@@ -24,7 +21,7 @@ import org.mule.api.routing.SelectiveRouter;
 import org.mule.api.routing.filter.Filter;
 import org.mule.config.i18n.MessageFactory;
 import org.mule.management.stats.RouterStatistics;
-import org.mule.module.async.processor.AbstractAsyncMessageProcessor;
+import org.mule.module.async.internal.processor.AbstractLifecycleDelegateMessageProcessor;
 import org.mule.module.async.processor.AsyncMessageProcessor;
 import org.mule.module.async.processor.MessageProcessorCallback;
 import org.mule.routing.MessageProcessorFilterPair;
@@ -34,117 +31,26 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.xml.namespace.QName;
 
 import org.apache.commons.collections.ListUtils;
 
-public class AsyncChoiceRouter extends AbstractAsyncMessageProcessor implements SelectiveRouter, RouterStatisticsRecorder, Lifecycle, FlowConstructAware, MuleContextAware, MessageProcessorContainer, AsyncMessageProcessor
+public class AsyncChoiceRouter extends AbstractLifecycleDelegateMessageProcessor implements SelectiveRouter, RouterStatisticsRecorder, MessageProcessorContainer, AsyncMessageProcessor
 {
 
     private final List<MessageProcessorFilterPair> conditionalMessageProcessors = new ArrayList<MessageProcessorFilterPair>();
     private MessageProcessor defaultProcessor;
     private RouterStatistics routerStatistics;
 
-    private final AtomicBoolean initialised = new AtomicBoolean(false);
-    private final AtomicBoolean starting = new AtomicBoolean(false);
-    private final AtomicBoolean started = new AtomicBoolean(false);
-    private FlowConstruct flowConstruct;
-
-    private final Map<QName, Object> annotations = new ConcurrentHashMap<QName, Object>();
-
     public AsyncChoiceRouter()
     {
         routerStatistics = new RouterStatistics(RouterStatistics.TYPE_OUTBOUND);
     }
 
-    public void setFlowConstruct(FlowConstruct flowConstruct)
-    {
-        this.flowConstruct = flowConstruct;
-    }
-
-
-    public void initialise() throws InitialisationException
-    {
-        synchronized (conditionalMessageProcessors)
-        {
-            for (Object o : getLifecycleManagedObjects())
-            {
-                if (o instanceof FlowConstructAware)
-                {
-                    ((FlowConstructAware) o).setFlowConstruct(flowConstruct);
-                }
-                if (o instanceof MuleContextAware)
-                {
-                    ((MuleContextAware) o).setMuleContext(getMuleContext());
-                }
-                if (o instanceof Initialisable)
-                {
-                    ((Initialisable) o).initialise();
-                }
-            }
-        }
-        initialised.set(true);
-    }
-
-    public void start() throws MuleException
-    {
-        synchronized (conditionalMessageProcessors)
-        {
-            starting.set(true);
-            for (Object o : getLifecycleManagedObjects())
-            {
-                if (o instanceof Startable)
-                {
-                    ((Startable) o).start();
-                }
-            }
-
-            started.set(true);
-            starting.set(false);
-        }
-    }
-
-    public void stop() throws MuleException
-    {
-        synchronized (conditionalMessageProcessors)
-        {
-            for (Object o : getLifecycleManagedObjects())
-            {
-                if (o instanceof Stoppable)
-                {
-                    ((Stoppable) o).stop();
-                }
-            }
-
-            started.set(false);
-        }
-    }
-
-    public void dispose()
-    {
-        synchronized (conditionalMessageProcessors)
-        {
-            for (Object o : getLifecycleManagedObjects())
-            {
-                if (o instanceof Disposable)
-                {
-                    ((Disposable) o).dispose();
-                }
-            }
-        }
-    }
 
     public void addRoute(MessageProcessor processor, Filter filter)
     {
-        synchronized (conditionalMessageProcessors)
-        {
-            MessageProcessorFilterPair addedPair = new MessageProcessorFilterPair(processor, filter);
-            conditionalMessageProcessors.add(transitionLifecycleManagedObjectForAddition(addedPair));
-        }
+        MessageProcessorFilterPair addedPair = new MessageProcessorFilterPair(processor, filter);
+        conditionalMessageProcessors.add(transitionLifecycleManagedObjectForAddition(addedPair));
     }
 
     public void removeRoute(MessageProcessor processor)
@@ -224,7 +130,8 @@ public class AsyncChoiceRouter extends AbstractAsyncMessageProcessor implements 
 
     }
 
-    private Collection<?> getLifecycleManagedObjects()
+    @Override
+    protected Collection<?> getLifecycleManagedObjects()
     {
         if (defaultProcessor == null)
         {
@@ -238,9 +145,9 @@ public class AsyncChoiceRouter extends AbstractAsyncMessageProcessor implements 
     {
         try
         {
-            if ((flowConstruct != null) && (managedObject instanceof FlowConstructAware))
+            if ((getFlowConstruct() != null) && (managedObject instanceof FlowConstructAware))
             {
-                ((FlowConstructAware) managedObject).setFlowConstruct(flowConstruct);
+                ((FlowConstructAware) managedObject).setFlowConstruct(getFlowConstruct());
             }
 
             if ((getMuleContext() != null) && (managedObject instanceof MuleContextAware))
@@ -248,12 +155,12 @@ public class AsyncChoiceRouter extends AbstractAsyncMessageProcessor implements 
                 ((MuleContextAware) managedObject).setMuleContext(getMuleContext());
             }
 
-            if ((initialised.get()) && (managedObject instanceof Initialisable))
+            if ((getInitialised().get()) && (managedObject instanceof Initialisable))
             {
                 ((Initialisable) managedObject).initialise();
             }
 
-            if ((started.get()) && (managedObject instanceof Startable))
+            if ((getStarted().get()) && (managedObject instanceof Startable))
             {
                 ((Startable) managedObject).start();
             }
@@ -342,6 +249,6 @@ public class AsyncChoiceRouter extends AbstractAsyncMessageProcessor implements 
     public String toString()
     {
         return String.format("%s [flow-construct=%s, started=%s]", getClass().getSimpleName(),
-                             flowConstruct != null ? flowConstruct.getName() : null, started);
+                             getFlowConstruct() != null ? getFlowConstruct().getName() : null, getStarted());
     }
 }

@@ -162,11 +162,7 @@
             <version>${mule.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.mule.modules</groupId>
-            <artifactId>mule-module-spring-config</artifactId>
-            <version>${mule.version}</version>
-        </dependency>
+
         <dependency>
             <groupId>org.mule.tools.devkit</groupId>
             <artifactId>mule-devkit-annotations</artifactId>
@@ -177,24 +173,8 @@
             <artifactId>mule-module-async</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.eclipse</groupId>
-            <artifactId>eclipse-workbench</artifactId>
-            <version>3.6.1.M20100826-1330</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse</groupId>
-            <artifactId>eclipse-runtime</artifactId>
-            <version>3.6.0.v20100505</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>core</artifactId>
-            <version>4.3.0</version>
-            <scope>provided</scope>
-        </dependency>
+       
+       
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

@@ -1,10 +1,12 @@
 /**
  *
  */
-package org.mule.module.async.processor;
+package org.mule.module.async.internal.processor;
 
 import org.mule.api.MuleEvent;
 import org.mule.api.MuleException;
+import org.mule.module.async.processor.AsyncMessageProcessor;
+import org.mule.module.async.processor.MessageProcessorCallback;
 
 public class RestAsyncMessageProcessor implements AsyncMessageProcessor
 {

@@ -2,7 +2,7 @@ package org.mule.module.async.netty.source;
 
 import static org.jboss.netty.channel.Channels.*;
 
-import org.mule.module.async.MuleEventFactory;
+import org.mule.module.async.internal.MuleEventFactory;
 import org.mule.module.async.processor.AsyncMessageProcessor;
 
 import org.jboss.netty.channel.ChannelPipeline;

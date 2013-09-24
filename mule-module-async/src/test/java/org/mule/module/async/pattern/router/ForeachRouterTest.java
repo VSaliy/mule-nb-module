@@ -1,38 +1,36 @@
 /**
  *
  */
-package org.mule.module.async.router;
+package org.mule.module.async.pattern.router;
 
 import org.mule.api.MuleEvent;
 import org.mule.api.MuleException;
-import org.mule.module.async.processor.AsyncFlow;
 import org.mule.module.async.processor.MessageProcessorCallback;
 import org.mule.tck.junit4.FunctionalTestCase;
 
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
 import org.junit.Test;
 
-public class ChoicerRouterTest extends FunctionalTestCase
+public class ForeachRouterTest extends FunctionalTestCase
 {
 
+
     @Test
-    public void testChoice() throws Exception
+    public void testForeach() throws Exception
     {
         AsyncFlow flow = (AsyncFlow) getFlowConstruct("test");
-        flow.getAsyncChain().process(getTestEvent("TestData"), new MessageProcessorCallback()
+        flow.getAsyncChain().process(getTestEvent(new String[] {"TestData", "TestData"}), new MessageProcessorCallback()
         {
 
             @Override
             public void onSuccess(MuleEvent event)
             {
-                Assert.assertThat((String) event.getMessage().getPayload(), CoreMatchers.is("good"));
+
             }
 
             @Override
             public void onException(MuleEvent event, MuleException e)
             {
-                Assert.fail(e.getMessage());
+
             }
         });
     }
@@ -40,6 +38,6 @@ public class ChoicerRouterTest extends FunctionalTestCase
     @Override
     protected String getConfigResources()
     {
-        return "router-async-simple.xml";
+        return "foreach-async-simple.xml";
     }
 }

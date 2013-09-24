@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.mule.modules</groupId>
         <artifactId>async-parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
+      <version>1.0-SNAPSHOT</version>
     </parent>
     <artifactId>mule-module-async</artifactId>
     <packaging>jar</packaging>
@@ -12,9 +12,12 @@
     <description>Module for executing Async Message Processor</description>
 
     <properties>
-        <mule.version>3.4.0</mule.version>
-        <rest.assured.version>1.7.2</rest.assured.version>
-        <guava.version>14.0.1</guava.version>
+        <mule.version>3.5.0-M2-SNAPSHOT</mule.version>
+        <mule.devkit.version>3.5.0-async-SNAPSHOT</mule.devkit.version>
+        <junit.version>4.9</junit.version>
+        <mockito.version>1.8.2</mockito.version>
+        <jdk.version>1.6</jdk.version>
+        <devkit.studio.package.skip>true</devkit.studio.package.skip>
     </properties>
 
     <build>
@@ -34,24 +37,28 @@
             <groupId>org.mule</groupId>
             <artifactId>mule-core</artifactId>
             <version>${mule.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.mule.transports</groupId>
             <artifactId>mule-transport-http</artifactId>
             <version>${mule.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.mule.modules</groupId>
             <artifactId>mule-module-spring-config</artifactId>
             <version>${mule.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.mule.modules</groupId>
             <artifactId>mule-module-json</artifactId>
             <version>${mule.version}</version>
+            <scope>provided</scope>
         </dependency>
 
 
@@ -59,12 +66,14 @@
             <groupId>io.netty</groupId>
             <artifactId>netty</artifactId>
             <version>3.6.5.Final</version>
+
         </dependency>
 
         <dependency>
             <groupId>com.ning</groupId>
             <artifactId>async-http-client</artifactId>
             <version>1.7.19</version>
+            
         </dependency>
 
         <dependency>

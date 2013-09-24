@@ -15,7 +15,7 @@ import org.mule.api.lifecycle.Startable;
 import org.mule.api.lifecycle.Stoppable;
 import org.mule.api.processor.MessageProcessor;
 import org.mule.api.source.MessageSource;
-import org.mule.module.async.DefaultMuleEventFactory;
+import org.mule.module.async.internal.DefaultMuleEventFactory;
 import org.mule.module.async.processor.AsyncMessageProcessor;
 
 import java.net.InetSocketAddress;

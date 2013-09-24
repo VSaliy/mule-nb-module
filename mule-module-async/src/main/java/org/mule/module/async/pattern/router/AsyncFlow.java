@@ -1,4 +1,4 @@
-package org.mule.module.async.processor;
+package org.mule.module.async.pattern.router;
 
 import org.mule.api.GlobalNameableObject;
 import org.mule.api.MuleContext;
@@ -14,6 +14,8 @@ import org.mule.api.processor.MessageProcessorPathElement;
 import org.mule.api.processor.ProcessingStrategy;
 import org.mule.api.source.MessageSource;
 import org.mule.construct.AbstractFlowConstruct;
+import org.mule.module.async.internal.processor.AsyncMessageProcessorChainBuilder;
+import org.mule.module.async.processor.AsyncMessageProcessor;
 import org.mule.processor.strategy.SynchronousProcessingStrategy;
 import org.mule.util.NotificationUtils;
 

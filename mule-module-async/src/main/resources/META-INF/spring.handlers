@@ -1,1 +1,1 @@
-http\://www.mulesoft.org/schema/mule/async=org.mule.module.async.config.AsyncNamespaceHandler
+http\://www.mulesoft.org/schema/mule/async=org.mule.module.async.internal.config.AsyncNamespaceHandler

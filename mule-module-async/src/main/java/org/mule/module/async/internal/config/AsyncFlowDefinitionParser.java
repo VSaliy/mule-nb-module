@@ -1,8 +1,8 @@
-package org.mule.module.async.config;
+package org.mule.module.async.internal.config;
 
 import org.mule.api.config.MuleProperties;
 import org.mule.config.spring.parsers.generic.OrphanDefinitionParser;
-import org.mule.module.async.processor.AsyncFlow;
+import org.mule.module.async.pattern.router.AsyncFlow;
 
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;

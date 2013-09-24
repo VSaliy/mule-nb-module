@@ -3,7 +3,7 @@ package org.mule.module.async.netty.source;
 import org.mule.api.MuleEvent;
 import org.mule.api.MuleException;
 import org.mule.api.MuleMessage;
-import org.mule.module.async.MuleEventFactory;
+import org.mule.module.async.internal.MuleEventFactory;
 import org.mule.module.async.processor.MessageProcessorCallback;
 import org.mule.module.async.processor.AsyncMessageProcessor;
 import org.mule.transport.http.HttpConnector;
