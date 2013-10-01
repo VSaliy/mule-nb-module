@@ -5,6 +5,9 @@ package org.mule.module.async.netty.processor;
 
 import org.mule.api.MessagingException;
 import org.mule.api.MuleEvent;
+import org.mule.api.MuleException;
+import org.mule.api.lifecycle.InitialisationException;
+import org.mule.api.lifecycle.Lifecycle;
 import org.mule.api.transport.PropertyScope;
 import org.mule.module.async.internal.processor.AbstractAsyncMessageProcessor;
 import org.mule.module.async.processor.MessageProcessorCallback;
@@ -12,16 +15,18 @@ import org.mule.transport.http.HttpConnector;
 
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.client.FluentCaseInsensitiveStringsMap;
 import com.ning.http.client.Response;
 
 import java.io.IOException;
 
-public class NettyClient extends AbstractAsyncMessageProcessor
+public class NettyClient extends AbstractAsyncMessageProcessor implements Lifecycle
 {
 
     private String baseUrl;
     private String uri;
+    private AsyncHttpClient asyncHttpClient;
 
 
     public NettyClient()
@@ -29,13 +34,15 @@ public class NettyClient extends AbstractAsyncMessageProcessor
         uri = "#[payload]";
     }
 
+
     @Override
     public void process(final MuleEvent event, final MessageProcessorCallback callback)
     {
         String uriEvaluated = getMuleContext().getExpressionManager().parse(uri, event).toString();
-        AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
+
         try
         {
+
             String url = baseUrl + uriEvaluated;
             System.out.println("url = " + url);
             asyncHttpClient.prepareGet(url).execute(new AsyncCompletionHandler<Response>()
@@ -88,4 +95,25 @@ public class NettyClient extends AbstractAsyncMessageProcessor
     }
 
 
+    @Override
+    public void dispose()
+    {
+    }
+
+    @Override
+    public void initialise() throws InitialisationException
+    {
+        AsyncHttpClientConfig.Builder builder = new AsyncHttpClientConfig.Builder();
+        asyncHttpClient = new AsyncHttpClient();
+    }
+
+    @Override
+    public void start() throws MuleException
+    {
+    }
+
+    @Override
+    public void stop() throws MuleException
+    {
+    }
 }

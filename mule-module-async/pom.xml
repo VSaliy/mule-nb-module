@@ -12,7 +12,7 @@
     <description>Module for executing Async Message Processor</description>
 
     <properties>
-        <mule.version>3.5.0-M2-SNAPSHOT</mule.version>
+        <mule.version>3.5.0-bighorn</mule.version>
         <mule.devkit.version>3.5.0-async-SNAPSHOT</mule.devkit.version>
         <junit.version>4.9</junit.version>
         <mockito.version>1.8.2</mockito.version>
@@ -51,7 +51,7 @@
             <groupId>org.mule.modules</groupId>
             <artifactId>mule-module-spring-config</artifactId>
             <version>${mule.version}</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
@@ -65,8 +65,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty</artifactId>
-            <version>3.6.5.Final</version>
-
+            <version>3.6.6.Final</version>
         </dependency>
 
         <dependency>

@@ -4,9 +4,8 @@ import org.mule.api.MuleEvent;
 import org.mule.api.MuleException;
 import org.mule.api.MuleMessage;
 import org.mule.module.async.internal.MuleEventFactory;
-import org.mule.module.async.processor.MessageProcessorCallback;
 import org.mule.module.async.processor.AsyncMessageProcessor;
-import org.mule.transport.http.HttpConnector;
+import org.mule.module.async.processor.MessageProcessorCallback;
 
 import java.nio.charset.Charset;
 
@@ -59,16 +58,12 @@ public class NettyServerHandler extends SimpleChannelUpstreamHandler
                     {
                         final MuleMessage message = result.getMessage();
                         HttpResponse response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
-                        response.setHeader("Content-Type", message.getOutboundProperty("Content-Type"));
-                        Object outboundProperty = message.getOutboundProperty(HttpConnector.HTTP_HEADERS);
-                        //if (outboundProperty instanceof Map)
-                        //{
-                        //    Set<Map.Entry<String, Object>> entries = ((Map<String, Object>) outboundProperty).entrySet();
-                        //    for (Map.Entry<String, Object> entry : entries)
-                        //    {
-                        //        response.setHeader(entry.getKey(), entry.getValue());
-                        //    }
-                        //}
+                        Object content_type = message.getOutboundProperty("Content-Type");
+                        if (content_type != null)
+                        {
+                            content_type = "text/plain";
+                        }
+                        response.setHeader("Content-Type", content_type);
                         response.setContent(ChannelBuffers.copiedBuffer(message.getPayload().toString(), CharsetUtil.ISO_8859_1));
                         channel.write(response).addListener(ChannelFutureListener.CLOSE);
                     }

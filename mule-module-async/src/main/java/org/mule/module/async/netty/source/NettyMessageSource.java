@@ -44,15 +44,19 @@ public class NettyMessageSource implements MessageSource, Initialisable, Startab
     public void initialise() throws InitialisationException
     {
         // Configure the server.
-        final NioServerSocketChannelFactory channelFactory = new NioServerSocketChannelFactory(Executors.newCachedThreadPool(),
-                                                                                               Executors.newCachedThreadPool());
-
-        bootstrap = new ServerBootstrap(channelFactory);
-        // Enable TCP_NODELAY to handle pipelined requests without latency.
-        bootstrap.setOption("child.tcpNoDelay", true);
-        // Set up the event pipeline factory.
-        DefaultMuleEventFactory muleEventFactory = new DefaultMuleEventFactory(new NettyMuleMessageFactory(context), flowConstruct, MessageExchangePattern.REQUEST_RESPONSE);
-        bootstrap.setPipelineFactory(new NettyServerPipelineFactory(asyncMessageProcessor, muleEventFactory));
+        if (bootstrap == null)
+        {
+            final NioServerSocketChannelFactory channelFactory;
+            channelFactory = new NioServerSocketChannelFactory(Executors.newCachedThreadPool(),
+                                                               Executors.newCachedThreadPool(),
+                                                               Runtime.getRuntime().availableProcessors() * 2);
+            bootstrap = new ServerBootstrap(channelFactory);
+            // Enable TCP_NODELAY to handle pipelined requests without latency.
+            bootstrap.setOption("child.tcpNoDelay", true);
+            // Set up the event pipeline factory.
+            DefaultMuleEventFactory muleEventFactory = new DefaultMuleEventFactory(new NettyMuleMessageFactory(context), flowConstruct, MessageExchangePattern.REQUEST_RESPONSE);
+            bootstrap.setPipelineFactory(new NettyServerPipelineFactory(asyncMessageProcessor, muleEventFactory));
+        }
     }
 
 
