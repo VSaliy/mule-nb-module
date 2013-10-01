@@ -14,6 +14,7 @@ import org.mule.module.async.internal.processor.AsynchMessageProcessorContainer;
 import org.mule.module.async.internal.processor.ExpressionMessageSequenceSplittingStrategy;
 import org.mule.module.async.processor.MessageProcessorCallback;
 import org.mule.routing.MessageSequence;
+import org.mule.routing.outbound.PartitionedMessageSequence;
 import org.mule.util.collection.SplittingStrategy;
 
 public class AsyncForeach extends AsynchMessageProcessorContainer
@@ -21,14 +22,20 @@ public class AsyncForeach extends AsynchMessageProcessorContainer
 
     private SplittingStrategy<MuleEvent, MessageSequence<?>> strategy;
     private String collectionExpression;
+    private int batchSize = 0;
 
     @Override
     public void process(MuleEvent event, MessageProcessorCallback callback)
     {
 
-        final MessageSequence<?> messageSequence = getStrategy().split(event);
+        MessageSequence<?> messageSequence = getStrategy().split(event);
+        if (getBatchSize() > 1)
+        {
+            messageSequence = new PartitionedMessageSequence(messageSequence, getBatchSize());
+        }
         try
         {
+
             processNext(messageSequence, event, new ForeachMessageProcessorCallback(event, messageSequence, callback));
         }
         catch (Exception e)
@@ -94,6 +101,15 @@ public class AsyncForeach extends AsynchMessageProcessorContainer
         super.initialise();
     }
 
+    public int getBatchSize()
+    {
+        return batchSize;
+    }
+
+    public void setBatchSize(int batchSize)
+    {
+        this.batchSize = batchSize;
+    }
 
     private class ForeachMessageProcessorCallback implements MessageProcessorCallback
     {
