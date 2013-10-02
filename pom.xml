@@ -10,7 +10,7 @@
     <name>Parent Async Module</name>
     <modules>
         <module>mule-module-async</module>
-        <module>mule-module-asynchttpclient</module>
+        <module>mule-module-async-http</module>
         
     </modules>
 

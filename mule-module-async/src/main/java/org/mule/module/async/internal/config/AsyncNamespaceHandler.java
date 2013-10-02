@@ -5,8 +5,6 @@ import org.mule.config.spring.parsers.generic.ChildDefinitionParser;
 import org.mule.config.spring.parsers.processors.CheckExclusiveAttributesAndChildren;
 import org.mule.module.async.internal.config.factories.AsyncChoiceRouterFactoryBean;
 import org.mule.module.async.internal.config.factories.AsyncMessageProcessorFilterPairFactoryBean;
-import org.mule.module.async.netty.processor.NettyClient;
-import org.mule.module.async.netty.source.NettyMessageSource;
 import org.mule.module.async.pattern.router.AsyncForeach;
 
 public class AsyncNamespaceHandler extends MuleNamespaceHandler
@@ -22,9 +20,6 @@ public class AsyncNamespaceHandler extends MuleNamespaceHandler
                 "expression"}, new String[] {"{http://www.mulesoft.org/schema/mule/core}abstractFilterType"})));
         registerBeanDefinitionParser("otherwise", new ChildDefinitionParser("defaultRoute", AsyncMessageProcessorFilterPairFactoryBean.class));
 
-        //Netty Module TODO refactor to new module
-        registerBeanDefinitionParser("netty-source", new ChildDefinitionParser("messageSource", NettyMessageSource.class));
-        registerBeanDefinitionParser("netty-client", new ChildDefinitionParser("messageProcessor", NettyClient.class));
 
     }
 }

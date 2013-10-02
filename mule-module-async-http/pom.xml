@@ -6,9 +6,9 @@
         <artifactId>async-parent</artifactId>
       <version>1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>mule-module-async</artifactId>
+    <artifactId>mule-module-async-http</artifactId>
     <packaging>jar</packaging>
-    <name>Async Core</name>
+    <name>Netty Async Module</name>
     <description>Module for executing Async Message Processor</description>
 
     <properties>
@@ -34,6 +34,12 @@
     <dependencies>
 
         <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-async</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.mule</groupId>
             <artifactId>mule-core</artifactId>
             <version>${mule.version}</version>
@@ -41,17 +47,24 @@
         </dependency>
 
         <dependency>
-            <groupId>org.mule.modules</groupId>
-            <artifactId>mule-module-spring-config</artifactId>
+            <groupId>org.mule.transports</groupId>
+            <artifactId>mule-transport-http</artifactId>
             <version>${mule.version}</version>
+            <scope>provided</scope>
+        </dependency>
 
+
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty</artifactId>
+            <version>3.6.6.Final</version>
         </dependency>
 
         <dependency>
-            <groupId>org.mule.modules</groupId>
-            <artifactId>mule-module-json</artifactId>
-            <version>${mule.version}</version>
-            <scope>provided</scope>
+            <groupId>com.ning</groupId>
+            <artifactId>async-http-client</artifactId>
+            <version>1.7.19</version>
+            
         </dependency>
 
         <dependency>
@@ -60,7 +73,6 @@
             <version>${mule.version}</version>
             <scope>test</scope>
         </dependency>
-
 
     </dependencies>
 

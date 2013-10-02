@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.mule.module.async.netty;
 
 import org.mule.tck.junit4.FunctionalTestCase;
@@ -23,6 +20,6 @@ public class NettyMessageSourceTest   extends FunctionalTestCase
     @Override
     protected String getConfigResources()
     {
-        return "src/test/resources/nb-simple.xml";
+        return "nb-simple.xml";
     }
 }
