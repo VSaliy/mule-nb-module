@@ -1,7 +1,9 @@
 package org.mule.module.async.pattern.router;
 
 import org.mule.api.GlobalNameableObject;
+import org.mule.api.MessagingException;
 import org.mule.api.MuleContext;
+import org.mule.api.MuleEvent;
 import org.mule.api.MuleException;
 import org.mule.api.ThreadSafeAccess;
 import org.mule.api.construct.Pipeline;
@@ -15,7 +17,10 @@ import org.mule.api.processor.ProcessingStrategy;
 import org.mule.api.source.MessageSource;
 import org.mule.construct.AbstractFlowConstruct;
 import org.mule.module.async.internal.processor.AsyncMessageProcessorChainBuilder;
+import org.mule.module.async.internal.processor.FutureMessageProcessorCallback;
+import org.mule.module.async.internal.processor.MuleEventFuture;
 import org.mule.module.async.processor.AsyncMessageProcessor;
+import org.mule.module.async.processor.MessageProcessorCallback;
 import org.mule.processor.strategy.SynchronousProcessingStrategy;
 import org.mule.util.NotificationUtils;
 
@@ -25,7 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AsyncFlow extends AbstractFlowConstruct implements Pipeline
+public class AsyncFlow extends AbstractFlowConstruct implements Pipeline, AsyncMessageProcessor
 {
 
 
@@ -33,7 +38,7 @@ public class AsyncFlow extends AbstractFlowConstruct implements Pipeline
     private AsyncMessageProcessor asyncChain;
     private List<MessageProcessor> messageProcessors = Collections.emptyList();
     private Map<MessageProcessor, String> flowMap = new LinkedHashMap<MessageProcessor, String>();
-    private ProcessingStrategy processingStrategy ;
+    private ProcessingStrategy processingStrategy;
     private MessageProcessorChainBuilder chainBuilder;
 
 
@@ -75,7 +80,8 @@ public class AsyncFlow extends AbstractFlowConstruct implements Pipeline
         {
             setChainBuilder(new AsyncMessageProcessorChainBuilder(this));
         }
-        if(getProcessingStrategy() == null){
+        if (getProcessingStrategy() == null)
+        {
             setProcessingStrategy(new SynchronousProcessingStrategy());
         }
 
@@ -83,8 +89,7 @@ public class AsyncFlow extends AbstractFlowConstruct implements Pipeline
 
         if (messageSource != null)
         {
-            // Wrap chain to decouple lifecycle
-            messageSource.setListener(asyncChain);
+            messageSource.setListener(this);
         }
 
 
@@ -216,6 +221,20 @@ public class AsyncFlow extends AbstractFlowConstruct implements Pipeline
         return esPrefix;
     }
 
+    @Override
+    public void process(MuleEvent event, MessageProcessorCallback callback)
+    {
+        asyncChain.process(event, new FlowMessageProcessorCallback(callback));
+    }
+
+    @Override
+    public MuleEvent process(MuleEvent event) throws MuleException
+    {
+        final MuleEventFuture future = new MuleEventFuture();
+        process(event, new FutureMessageProcessorCallback(future));
+        return future.get();
+    }
+
     private class NBStageNameSource implements ProcessingStrategy.StageNameSource
     {
 
@@ -230,6 +249,38 @@ public class AsyncFlow extends AbstractFlowConstruct implements Pipeline
         public String getName()
         {
             return this.name;
+        }
+    }
+
+    private class FlowMessageProcessorCallback implements MessageProcessorCallback
+    {
+
+        private MessageProcessorCallback parent;
+
+        private FlowMessageProcessorCallback(MessageProcessorCallback parent)
+        {
+            this.parent = parent;
+        }
+
+        @Override
+        public void onSuccess(MuleEvent event)
+        {
+
+            parent.onSuccess(event);
+        }
+
+        @Override
+        public void onException(MuleEvent event, MuleException e)
+        {
+            try
+            {
+                MuleEvent muleEvent = getExceptionListener().handleException(e, event);
+                parent.onSuccess(muleEvent);
+            }
+            catch (Exception exception)
+            {
+                parent.onException(event, new MessagingException(event, e));
+            }
         }
     }
 }
