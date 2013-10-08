@@ -4,7 +4,6 @@
 package org.mule.module.async.internal.processor;
 
 import org.mule.api.MuleException;
-import org.mule.api.construct.FlowConstruct;
 import org.mule.api.construct.FlowConstructAware;
 import org.mule.api.context.MuleContextAware;
 import org.mule.api.lifecycle.Disposable;
@@ -23,13 +22,7 @@ public abstract class AbstractLifecycleDelegateMessageProcessor extends Abstract
     private final AtomicBoolean initialised = new AtomicBoolean(false);
     private final AtomicBoolean started = new AtomicBoolean(false);
     private final AtomicBoolean starting = new AtomicBoolean(false);
-    private FlowConstruct flowConstruct;
 
-
-    public void setFlowConstruct(FlowConstruct flowConstruct)
-    {
-        this.flowConstruct = flowConstruct;
-    }
 
     public void initialise() throws InitialisationException
     {
@@ -119,8 +112,4 @@ public abstract class AbstractLifecycleDelegateMessageProcessor extends Abstract
         return starting;
     }
 
-    public FlowConstruct getFlowConstruct()
-    {
-        return flowConstruct;
-    }
 }

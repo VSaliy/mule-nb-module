@@ -11,7 +11,8 @@
     <modules>
         <module>mule-module-async</module>
         <module>mule-module-async-http</module>
-        
+
+        <module>mule-module-async-example</module>
     </modules>
 
     <properties>

@@ -40,14 +40,16 @@ public class NettyClient extends AbstractAsyncMessageProcessor implements Lifecy
     @Override
     public void process(final MuleEvent event, final MessageProcessorCallback callback)
     {
-        String uriEvaluated = getMuleContext().getExpressionManager().parse(uri, event).toString();
+        final String uriEvaluated = getMuleContext().getExpressionManager().parse(uri, event).toString();
 
         try
         {
 
-            String url = baseUrl + uriEvaluated;
+            final String url = baseUrl + uriEvaluated;
 
-            asyncHttpClient.prepareGet(url).execute(new AsyncCompletionHandler<Response>()
+            AsyncHttpClient.BoundRequestBuilder requestBuilder;
+            requestBuilder = asyncHttpClient.prepareGet(url);
+            requestBuilder.execute(new AsyncCompletionHandler<Response>()
             {
 
                 @Override

@@ -3,6 +3,7 @@ package org.mule.module.async.internal.config;
 import org.mule.config.spring.handlers.MuleNamespaceHandler;
 import org.mule.config.spring.parsers.generic.ChildDefinitionParser;
 import org.mule.config.spring.parsers.processors.CheckExclusiveAttributesAndChildren;
+import org.mule.config.spring.parsers.specific.FlowRefDefinitionParser;
 import org.mule.module.async.internal.config.factories.AsyncChoiceRouterFactoryBean;
 import org.mule.module.async.internal.config.factories.AsyncMessageProcessorFilterPairFactoryBean;
 import org.mule.module.async.pattern.router.AsyncForeach;
@@ -20,6 +21,7 @@ public class AsyncNamespaceHandler extends MuleNamespaceHandler
                 "expression"}, new String[] {"{http://www.mulesoft.org/schema/mule/core}abstractFilterType"})));
         registerBeanDefinitionParser("otherwise", new ChildDefinitionParser("defaultRoute", AsyncMessageProcessorFilterPairFactoryBean.class));
 
+        registerBeanDefinitionParser("flow-ref", new FlowRefDefinitionParser());
 
     }
 }
