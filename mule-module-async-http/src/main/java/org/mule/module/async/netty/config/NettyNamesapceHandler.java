@@ -13,7 +13,6 @@ public class NettyNamesapceHandler    extends org.mule.config.spring.handlers.Ab
     @Override
     public void init()
     {
-        //Netty Module TODO refactor to new module
         registerBeanDefinitionParser("netty-source", new ChildDefinitionParser("messageSource", NettyMessageSource.class));
         registerBeanDefinitionParser("netty-client", new ChildDefinitionParser("messageProcessor", NettyClient.class));
     }

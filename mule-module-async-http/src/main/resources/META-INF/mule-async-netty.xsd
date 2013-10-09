@@ -76,6 +76,13 @@
                         </xsd:documentation>
                     </xsd:annotation>
                 </xsd:attribute>
+                <xsd:attribute name="method" type="xsd:string" >
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The HTTP Method to use
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>

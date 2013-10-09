@@ -23,17 +23,21 @@ import com.ning.http.client.Response;
 
 import java.io.IOException;
 
+import org.jboss.netty.handler.codec.http.HttpMethod;
+
 public class NettyClient extends AbstractAsyncMessageProcessor implements Lifecycle
 {
 
     private String baseUrl;
     private String uri;
+    private String method;
     private AsyncHttpClient asyncHttpClient;
 
 
     public NettyClient()
     {
         uri = "#[payload]";
+        method = HttpMethod.GET.getName();
     }
 
 
@@ -47,32 +51,36 @@ public class NettyClient extends AbstractAsyncMessageProcessor implements Lifecy
 
             final String url = baseUrl + uriEvaluated;
 
-            AsyncHttpClient.BoundRequestBuilder requestBuilder;
-            requestBuilder = asyncHttpClient.prepareGet(url);
-            requestBuilder.execute(new AsyncCompletionHandler<Response>()
+            AsyncHttpClient.BoundRequestBuilder requestBuilder = null;
+
+            if (method.equalsIgnoreCase(HttpMethod.POST.getName()))
             {
+                requestBuilder = asyncHttpClient.preparePost(url);
+            }
+            else if (method.equalsIgnoreCase(HttpMethod.GET.getName()))
+            {
+                requestBuilder = asyncHttpClient.prepareGet(url);
+            }
+            else if (method.equalsIgnoreCase(HttpMethod.PUT.getName()))
+            {
+                requestBuilder = asyncHttpClient.preparePut(url);
+            }
+            else if (method.equalsIgnoreCase(HttpMethod.OPTIONS.getName()))
+            {
+                requestBuilder = asyncHttpClient.prepareOptions(url);
+            }
+            else if (method.equalsIgnoreCase(HttpMethod.HEAD.getName()))
+            {
+                requestBuilder = asyncHttpClient.prepareHead(url);
+            }
+            else if (method.equalsIgnoreCase(HttpMethod.DELETE.getName()))
+            {
+                requestBuilder = asyncHttpClient.prepareDelete(url);
+            }
 
-                @Override
-                public Response onCompleted(Response response) throws Exception
-                {
 
-                    final NettyUtils nettyUtils = new NettyUtils();
-                    event.getMessage().setPayload(response.getResponseBody());
-                    final FluentCaseInsensitiveStringsMap headers = response.getHeaders();
-                    final String contentType = response.getContentType();
-                    event.getMessage().setProperty(HttpConnector.HTTP_HEADERS, headers, PropertyScope.OUTBOUND);
-                    event.getMessage().setProperty(HttpConstants.HEADER_CONTENT_TYPE, contentType, PropertyScope.OUTBOUND);
-                    event.getMessage().setEncoding(nettyUtils.getEncoding(contentType));
-                    callback.onSuccess(event);
-                    return response;
-                }
 
-                @Override
-                public void onThrowable(Throwable t)
-                {
-                    callback.onException(event, new MessagingException(event, t, NettyClient.this));
-                }
-            });
+            requestBuilder.execute(new ResponseAsyncCompletionHandler(event, callback));
         }
         catch (IOException e)
         {
@@ -100,6 +108,16 @@ public class NettyClient extends AbstractAsyncMessageProcessor implements Lifecy
         this.uri = uri;
     }
 
+    public String getMethod()
+    {
+        return method;
+    }
+
+    public void setMethod(String method)
+    {
+        this.method = method;
+    }
+
 
     @Override
     public void dispose()
@@ -121,5 +139,39 @@ public class NettyClient extends AbstractAsyncMessageProcessor implements Lifecy
     @Override
     public void stop() throws MuleException
     {
+    }
+
+    private class ResponseAsyncCompletionHandler extends AsyncCompletionHandler<Response>
+    {
+
+        private final MuleEvent event;
+        private final MessageProcessorCallback callback;
+
+        public ResponseAsyncCompletionHandler(MuleEvent event, MessageProcessorCallback callback)
+        {
+            this.event = event;
+            this.callback = callback;
+        }
+
+        @Override
+        public Response onCompleted(Response response) throws Exception
+        {
+
+            final NettyUtils nettyUtils = new NettyUtils();
+            event.getMessage().setPayload(response.getResponseBody());
+            final FluentCaseInsensitiveStringsMap headers = response.getHeaders();
+            final String contentType = response.getContentType();
+            event.getMessage().setProperty(HttpConnector.HTTP_HEADERS, headers, PropertyScope.OUTBOUND);
+            event.getMessage().setProperty(HttpConstants.HEADER_CONTENT_TYPE, contentType, PropertyScope.OUTBOUND);
+            event.getMessage().setEncoding(nettyUtils.getEncoding(contentType));
+            callback.onSuccess(event);
+            return response;
+        }
+
+        @Override
+        public void onThrowable(Throwable t)
+        {
+            callback.onException(event, new MessagingException(event, t, NettyClient.this));
+        }
     }
 }

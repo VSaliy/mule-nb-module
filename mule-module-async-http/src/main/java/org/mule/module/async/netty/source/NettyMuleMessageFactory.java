@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jboss.netty.handler.codec.http.HttpHeaders;
 import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 
@@ -19,6 +20,7 @@ public class NettyMuleMessageFactory extends DefaultMuleMessageFactory
 {
 
 
+    public static final String HTTP_CONTENT_LENGTH = HttpConnector.HTTP_PREFIX + "content-length";
 
     public NettyMuleMessageFactory(MuleContext context)
     {
@@ -37,18 +39,21 @@ public class NettyMuleMessageFactory extends DefaultMuleMessageFactory
         final HttpRequest request = (HttpRequest) transportMessage;
         final List<Map.Entry<String, String>> headers = request.getHeaders();
         final Map<String, Object> inboundProperties = new HashMap<String, Object>();
+        final Map<String, String> headersMap = new HashMap<String, String>();
         for (Map.Entry<String, String> header : headers)
         {
-            inboundProperties.put(header.getKey(), header.getValue());
+
+            headersMap.put(header.getKey(), header.getValue());
         }
 
+        inboundProperties.put(HTTP_CONTENT_LENGTH, HttpHeaders.getContentLength(request));
+        inboundProperties.put(HttpConnector.HTTP_HEADERS, headersMap);
         inboundProperties.put(HttpConnector.HTTP_METHOD_PROPERTY, request.getMethod());
         inboundProperties.put(HttpConnector.HTTP_REQUEST_PROPERTY, request.getUri());
         inboundProperties.put(HttpConnector.HTTP_VERSION_PROPERTY, request.getProtocolVersion().toString());
 
         message.addInboundProperties(inboundProperties);
     }
-
 
 
     @Override
