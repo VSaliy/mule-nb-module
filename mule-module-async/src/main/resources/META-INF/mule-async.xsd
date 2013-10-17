@@ -33,11 +33,24 @@
         </xsd:annotation>
     </xsd:element>
 
+    <xsd:element name="choice" type="selectiveOutboundRouterType"
+                 substitutionGroup="mule:abstract-routing-message-processor">
+        <xsd:annotation>
+            <xsd:documentation>
+                Sends the message to the first endpoint whose condition has been satisfied. If no conditions were
+                satisfied, sends to the configured default endpoint if configured, or throws an exception if not
+                configured.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
 
     <xsd:element name="flow-ref" substitutionGroup="mule:abstract-message-processor">
         <xsd:annotation>
             <xsd:documentation>
-                Allows a 'flow' to be referenced such that the message processing will continue in the referenced flow before returning.  Message processing in the referenced 'flow' will occur within the context of the referenced flow and will therefore use it's exception strategy etc.
+                Allows a 'flow' to be referenced such that the message processing will continue in the referenced flow
+                before returning. Message processing in the referenced 'flow' will occur within the context of the
+                referenced flow and will therefore use it's exception strategy etc.
             </xsd:documentation>
         </xsd:annotation>
         <xsd:complexType>
@@ -52,6 +65,39 @@
 
     <xsd:element name="foreach" type="foreachProcessorType"
                  substitutionGroup="mule:abstract-message-processor"/>
+
+
+    <xsd:element name="processor-chain" type="mule:messageProcessorChainType"
+                 substitutionGroup="mule:abstract-message-processor">
+        <xsd:annotation>
+            <xsd:documentation>Chain for grouping a set of message processors</xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:element name="round-robin" substitutionGroup="mule:abstract-message-processor"
+                 type="routerMessageProcessorType">
+        <xsd:annotation>
+            <xsd:documentation>
+                Send each message received to the next message processor in the circular list of targets
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+
+    <xsd:complexType name="selectiveOutboundRouterType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractRoutingMessageProcessorType">
+                <xsd:sequence>
+                    <xsd:element name="when" type="mule:whenMessageProcessorFilterPairType" minOccurs="1"
+                                 maxOccurs="unbounded"/>
+                    <xsd:element name="otherwise" type="mule:otherwiseMessageProcessorFilterPairType" minOccurs="0"
+                                 maxOccurs="1"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+
     <xsd:complexType name="foreachProcessorType">
         <xsd:complexContent>
 
@@ -78,82 +124,13 @@
     </xsd:complexType>
 
 
-    <xsd:complexType name="selectiveOutboundRouterType">
-        <xsd:complexContent>
-            <xsd:extension base="mule:abstractRoutingMessageProcessorType">
-                <xsd:sequence>
-                    <xsd:element name="when" type="mule:whenMessageProcessorFilterPairType" minOccurs="1"
-                                 maxOccurs="unbounded"/>
-                    <xsd:element name="otherwise" type="mule:otherwiseMessageProcessorFilterPairType" minOccurs="0"
-                                 maxOccurs="1"/>
-                </xsd:sequence>
-            </xsd:extension>
-        </xsd:complexContent>
-    </xsd:complexType>
-
-    <xsd:element name="choice" type="selectiveOutboundRouterType"
-                 substitutionGroup="mule:abstract-routing-message-processor">
-        <xsd:annotation>
-            <xsd:documentation>
-                Sends the message to the first endpoint whose condition has been satisfied. If no conditions were
-                satisfied, sends to the configured default endpoint if configured, or throws an exception if not
-                configured.
-            </xsd:documentation>
-        </xsd:annotation>
-    </xsd:element>
-
-
-    <!-- Netty Module -->
-
-    <xsd:element name="netty-client" type="nettyClientProcessorType"
-                 substitutionGroup="mule:abstract-message-processor">
-        <xsd:annotation>
-            <xsd:documentation>
-                A rest routing message processor.
-            </xsd:documentation>
-        </xsd:annotation>
-    </xsd:element>
-
-    <xsd:element name="netty-source" type="nettyMessageSourceType" substitutionGroup="mule:abstract-message-source">
-        <xsd:annotation>
-            <xsd:documentation>
-                A rest routing message processor.
-            </xsd:documentation>
-        </xsd:annotation>
-    </xsd:element>
-
-    <xsd:complexType name="nettyClientProcessorType">
+    <xsd:complexType name="routerMessageProcessorType">
         <xsd:complexContent>
             <xsd:extension base="mule:abstractMessageProcessorType">
-                <xsd:attribute name="baseUrl" type="mule:nonBlankString" use="required">
-                    <xsd:annotation>
-                        <xsd:documentation>
-                            The URL to invoke configuration.
-                        </xsd:documentation>
-                    </xsd:annotation>
-                </xsd:attribute>
-                <xsd:attribute name="uri" type="mule:nonBlankString" use="optional">
-                    <xsd:annotation>
-                        <xsd:documentation>
-                            The URL to invoke configuration.
-                        </xsd:documentation>
-                    </xsd:annotation>
-                </xsd:attribute>
-
-            </xsd:extension>
-        </xsd:complexContent>
-    </xsd:complexType>
-
-    <xsd:complexType name="nettyMessageSourceType">
-        <xsd:complexContent>
-            <xsd:extension base="mule:abstractMessageSourceType">
-                <xsd:attribute name="port" type="xsd:integer" use="required">
-                    <xsd:annotation>
-                        <xsd:documentation>
-                            The URL to invoke configuration.
-                        </xsd:documentation>
-                    </xsd:annotation>
-                </xsd:attribute>
+                <xsd:sequence>
+                    <xsd:element name="route" type="mule:messageProcessorChainType" minOccurs="1"
+                                 maxOccurs="unbounded"/>
+                </xsd:sequence>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>

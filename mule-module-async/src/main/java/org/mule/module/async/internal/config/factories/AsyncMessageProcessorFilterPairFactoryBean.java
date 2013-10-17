@@ -18,9 +18,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.FactoryBean;
 
-public class AsyncMessageProcessorFilterPairFactoryBean
-        implements FactoryBean<MessageProcessorFilterPair>,
-        MuleContextAware
+public class AsyncMessageProcessorFilterPairFactoryBean implements FactoryBean<MessageProcessorFilterPair>, MuleContextAware
 {
 
     private List<MessageProcessor> messageProcessors;

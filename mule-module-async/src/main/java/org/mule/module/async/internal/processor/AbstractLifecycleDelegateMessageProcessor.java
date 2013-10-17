@@ -4,6 +4,7 @@
 package org.mule.module.async.internal.processor;
 
 import org.mule.api.MuleException;
+import org.mule.api.MuleRuntimeException;
 import org.mule.api.construct.FlowConstructAware;
 import org.mule.api.context.MuleContextAware;
 import org.mule.api.lifecycle.Disposable;
@@ -14,20 +15,18 @@ import org.mule.api.lifecycle.Startable;
 import org.mule.api.lifecycle.Stoppable;
 
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class AbstractLifecycleDelegateMessageProcessor extends AbstractAsyncMessageProcessor implements Lifecycle, FlowConstructAware, MuleContextAware
 {
 
-    private final AtomicBoolean initialised = new AtomicBoolean(false);
-    private final AtomicBoolean started = new AtomicBoolean(false);
-    private final AtomicBoolean starting = new AtomicBoolean(false);
+    private volatile boolean initialised = false;
+    private volatile boolean started = false;
 
 
     public void initialise() throws InitialisationException
     {
 
-        if (!getInitialised().get())
+        if (!initialised)
         {
             for (Object o : getLifecycleManagedObjects())
             {
@@ -44,15 +43,16 @@ public abstract class AbstractLifecycleDelegateMessageProcessor extends Abstract
                     ((Initialisable) o).initialise();
                 }
             }
-            getInitialised().set(true);
+            initialised = true;
+
         }
     }
 
     public void start() throws MuleException
     {
-        if (!getStarted().get())
+        if (!started)
         {
-            getStarting().set(true);
+
             for (Object o : getLifecycleManagedObjects())
             {
                 if (o instanceof Startable)
@@ -60,9 +60,8 @@ public abstract class AbstractLifecycleDelegateMessageProcessor extends Abstract
                     ((Startable) o).start();
                 }
             }
+            started = true;
 
-            getStarted().set(true);
-            getStarting().set(false);
         }
 
     }
@@ -78,8 +77,62 @@ public abstract class AbstractLifecycleDelegateMessageProcessor extends Abstract
             }
         }
 
-        getStarted().set(false);
+        started = false;
 
+    }
+
+    protected <O> O transitionLifecycleManagedObjectForAddition(O managedObject)
+    {
+        try
+        {
+            if ((getFlowConstruct() != null) && (managedObject instanceof FlowConstructAware))
+            {
+                ((FlowConstructAware) managedObject).setFlowConstruct(getFlowConstruct());
+            }
+
+            if ((getMuleContext() != null) && (managedObject instanceof MuleContextAware))
+            {
+                ((MuleContextAware) managedObject).setMuleContext(getMuleContext());
+            }
+
+            if ((initialised) && (managedObject instanceof Initialisable))
+            {
+                ((Initialisable) managedObject).initialise();
+            }
+
+            if ((started) && (managedObject instanceof Startable))
+            {
+                ((Startable) managedObject).start();
+            }
+        }
+        catch (MuleException me)
+        {
+            throw new MuleRuntimeException(me);
+        }
+
+        return managedObject;
+    }
+
+    protected <O> O transitionLifecycleManagedObjectForRemoval(O managedObject)
+    {
+        try
+        {
+            if (managedObject instanceof Stoppable)
+            {
+                ((Stoppable) managedObject).stop();
+            }
+
+            if (managedObject instanceof Disposable)
+            {
+                ((Disposable) managedObject).dispose();
+            }
+        }
+        catch (MuleException me)
+        {
+            throw new MuleRuntimeException(me);
+        }
+
+        return managedObject;
     }
 
     public void dispose()
@@ -97,19 +150,13 @@ public abstract class AbstractLifecycleDelegateMessageProcessor extends Abstract
 
     protected abstract Collection<?> getLifecycleManagedObjects();
 
-    public AtomicBoolean getInitialised()
+    public boolean isInitialised()
     {
         return initialised;
     }
 
-    public AtomicBoolean getStarted()
+    public boolean isStarted()
     {
         return started;
     }
-
-    public AtomicBoolean getStarting()
-    {
-        return starting;
-    }
-
 }

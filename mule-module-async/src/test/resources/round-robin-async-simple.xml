@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mule xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-
       xmlns:async="http://www.mulesoft.org/schema/mule/async"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-
         http://www.mulesoft.org/schema/mule/async http://www.mulesoft.org/schema/mule/async/current/mule-async.xsd">
+
+
 
     <async:flow name="test">
 
-        <async:foreach>
-           <logger message="Hello #[payload]" level="ERROR"/>
-        </async:foreach>
+        <async:round-robin>
+            <async:route >
+              <set-payload value="#['good']"/>
+            </async:route>
+            <async:route>
+                <set-payload value="#['good2']"/>
+            </async:route>
 
+        </async:round-robin>
     </async:flow>
 
 </mule>

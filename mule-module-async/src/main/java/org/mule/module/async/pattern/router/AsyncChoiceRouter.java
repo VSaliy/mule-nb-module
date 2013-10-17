@@ -4,14 +4,6 @@
 package org.mule.module.async.pattern.router;
 
 import org.mule.api.MuleEvent;
-import org.mule.api.MuleException;
-import org.mule.api.MuleRuntimeException;
-import org.mule.api.construct.FlowConstructAware;
-import org.mule.api.context.MuleContextAware;
-import org.mule.api.lifecycle.Disposable;
-import org.mule.api.lifecycle.Initialisable;
-import org.mule.api.lifecycle.Startable;
-import org.mule.api.lifecycle.Stoppable;
 import org.mule.api.processor.MessageProcessor;
 import org.mule.api.processor.MessageProcessorContainer;
 import org.mule.api.processor.MessageProcessorPathElement;
@@ -111,7 +103,6 @@ public class AsyncChoiceRouter extends AbstractLifecycleDelegateMessageProcessor
                     event, this));
         }
 
-
     }
 
 
@@ -127,7 +118,6 @@ public class AsyncChoiceRouter extends AbstractLifecycleDelegateMessageProcessor
         }
 
         return null;
-
     }
 
     @Override
@@ -139,60 +129,6 @@ public class AsyncChoiceRouter extends AbstractLifecycleDelegateMessageProcessor
         }
 
         return ListUtils.union(conditionalMessageProcessors, Collections.singletonList(defaultProcessor));
-    }
-
-    private <O> O transitionLifecycleManagedObjectForAddition(O managedObject)
-    {
-        try
-        {
-            if ((getFlowConstruct() != null) && (managedObject instanceof FlowConstructAware))
-            {
-                ((FlowConstructAware) managedObject).setFlowConstruct(getFlowConstruct());
-            }
-
-            if ((getMuleContext() != null) && (managedObject instanceof MuleContextAware))
-            {
-                ((MuleContextAware) managedObject).setMuleContext(getMuleContext());
-            }
-
-            if ((getInitialised().get()) && (managedObject instanceof Initialisable))
-            {
-                ((Initialisable) managedObject).initialise();
-            }
-
-            if ((getStarted().get()) && (managedObject instanceof Startable))
-            {
-                ((Startable) managedObject).start();
-            }
-        }
-        catch (MuleException me)
-        {
-            throw new MuleRuntimeException(me);
-        }
-
-        return managedObject;
-    }
-
-    private <O> O transitionLifecycleManagedObjectForRemoval(O managedObject)
-    {
-        try
-        {
-            if (managedObject instanceof Stoppable)
-            {
-                ((Stoppable) managedObject).stop();
-            }
-
-            if (managedObject instanceof Disposable)
-            {
-                ((Disposable) managedObject).dispose();
-            }
-        }
-        catch (MuleException me)
-        {
-            throw new MuleRuntimeException(me);
-        }
-
-        return managedObject;
     }
 
 
@@ -249,6 +185,6 @@ public class AsyncChoiceRouter extends AbstractLifecycleDelegateMessageProcessor
     public String toString()
     {
         return String.format("%s [flow-construct=%s, started=%s]", getClass().getSimpleName(),
-                             getFlowConstruct() != null ? getFlowConstruct().getName() : null, getStarted());
+                             getFlowConstruct() != null ? getFlowConstruct().getName() : null, isStarted());
     }
 }

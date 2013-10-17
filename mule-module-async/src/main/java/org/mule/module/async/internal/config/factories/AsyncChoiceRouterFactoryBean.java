@@ -8,10 +8,6 @@ import org.mule.module.async.pattern.router.AsyncChoiceRouter;
 import org.mule.routing.MessageProcessorFilterPair;
 
 import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.xml.namespace.QName;
 
 import org.springframework.beans.factory.FactoryBean;
 
@@ -20,7 +16,7 @@ public class AsyncChoiceRouterFactoryBean implements FactoryBean
 
     private MessageProcessor defaultProcessor;
     private Collection<MessageProcessorFilterPair> conditionalMessageProcessors;
-    private final Map<QName, Object> annotations = new ConcurrentHashMap<QName, Object>();
+
 
     public AsyncChoiceRouterFactoryBean()
     {
