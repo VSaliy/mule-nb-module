@@ -46,9 +46,15 @@ public class NettyMuleMessageFactory extends DefaultMuleMessageFactory
             headersMap.put(header.getKey(), header.getValue());
         }
 
+        //Fill All the properties
+        inboundProperties.put(HttpConnector.HTTP_QUERY_PARAMS, HttpUriHelper.parseQueryParams(request.getUri(), message.getEncoding()));
+        inboundProperties.put(HttpConnector.HTTP_QUERY_STRING, HttpUriHelper.parseQueryString(request.getUri()));
+        inboundProperties.put(HttpConnector.HTTP_REQUEST_PATH_PROPERTY, HttpUriHelper.parsePath(request.getUri()));
         inboundProperties.put(HTTP_CONTENT_LENGTH, HttpHeaders.getContentLength(request));
+        //Add them at root level and under http.headers. Is ugly but is the mule way :(
         inboundProperties.put(HttpConnector.HTTP_HEADERS, headersMap);
-        inboundProperties.put(HttpConnector.HTTP_METHOD_PROPERTY, request.getMethod());
+        inboundProperties.putAll(headersMap);
+        inboundProperties.put(HttpConnector.HTTP_METHOD_PROPERTY, request.getMethod().getName());
         inboundProperties.put(HttpConnector.HTTP_REQUEST_PROPERTY, request.getUri());
         inboundProperties.put(HttpConnector.HTTP_VERSION_PROPERTY, request.getProtocolVersion().toString());
 
