@@ -52,15 +52,16 @@ public class AsyncMessageProcessorChain extends AbstractMessageProcessorChain im
 
 
         MuleEvent processedEvent = event;
-        while (messageProcessors.hasNext())
+        MessageProcessor next = null;
+        try
         {
-            if (VoidMuleEvent.getInstance().equals(event))
-            {   //If Void Event stop Processing
-                break;
-            }
-            MessageProcessor next = messageProcessors.next();
-            try
+            while (messageProcessors.hasNext())
             {
+                if (VoidMuleEvent.getInstance().equals(event))
+                {   //If Void Event stop Processing
+                    break;
+                }
+                next = messageProcessors.next();
                 final NBMessageProcessorChainCallback chainCallback = new NBMessageProcessorChainCallback(messageProcessors, next, callback);
                 chainListener.firePreInvokeMessageProcessor(processedEvent, next);
                 if (next instanceof AsyncMessageProcessor)
@@ -75,21 +76,21 @@ public class AsyncMessageProcessorChain extends AbstractMessageProcessorChain im
                     chainListener.firePostInvokeMessageProcessor(processedEvent, next);
                 }
             }
-            catch (MuleException e)
-            {
-                chainListener.firePostExceptionInvokeMessageProcessor(processedEvent, next, e);
-                callback.onException(processedEvent, e);
-                return;
-            }
-            catch (Exception e)
-            {
-                final MessagingException messagingException = new MessagingException(event, e, next);
-                chainListener.firePostExceptionInvokeMessageProcessor(processedEvent, next, messagingException);
-                callback.onException(processedEvent, messagingException);
-                return;
-            }
+            callback.onSuccess(processedEvent);
         }
-        callback.onSuccess(processedEvent);
+        catch (MuleException e)
+        {
+            chainListener.firePostExceptionInvokeMessageProcessor(processedEvent, next, e);
+            callback.onException(processedEvent, e);
+            return;
+        }
+        catch (Exception e)
+        {
+            final MessagingException messagingException = new MessagingException(event, e, next);
+            chainListener.firePostExceptionInvokeMessageProcessor(processedEvent, next, messagingException);
+            callback.onException(processedEvent, messagingException);
+            return;
+        }
     }
 
 
