@@ -22,6 +22,8 @@ import org.mule.util.concurrent.NamedThreadFactory;
 import org.mule.util.concurrent.ThreadNameHelper;
 
 import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,6 +39,7 @@ public class NettyMessageSource implements MessageSource, Initialisable, Startab
     private AsyncMessageProcessor asyncMessageProcessor;
     private ServerBootstrap bootstrap;
     private int port;
+    private String host;
     private FlowConstruct flowConstruct;
     private MuleContext muleContext;
 
@@ -69,10 +72,10 @@ public class NettyMessageSource implements MessageSource, Initialisable, Startab
 
 
             final ThreadPoolExecutor dispatcherExecutor = new ThreadPoolExecutor(32, 32, tp.getThreadTTL(),
-                                                                           TimeUnit.MILLISECONDS,
-                                                                           new ArrayBlockingQueue<Runnable>(1000),
-                                                                           threadFactory,
-                                                                           new ThreadPoolExecutor.AbortPolicy()
+                                                                                 TimeUnit.MILLISECONDS,
+                                                                                 new ArrayBlockingQueue<Runnable>(1000),
+                                                                                 threadFactory,
+                                                                                 new ThreadPoolExecutor.AbortPolicy()
             );
 
             channelFactory = new NioServerSocketChannelFactory(bossExecutor,
@@ -81,9 +84,20 @@ public class NettyMessageSource implements MessageSource, Initialisable, Startab
             bootstrap = new ServerBootstrap(channelFactory);
             // Enable TCP_NODELAY to handle pipelined requests without latency.
             bootstrap.setOption("child.tcpNoDelay", true);
+
             // Set up the event pipeline factory.
-            DefaultMuleEventFactory muleEventFactory = new DefaultMuleEventFactory(new NettyMuleMessageFactory(muleContext), flowConstruct, MessageExchangePattern.REQUEST_RESPONSE);
-            bootstrap.setPipelineFactory(new NettyServerPipelineFactory(asyncMessageProcessor, muleEventFactory));
+
+            try
+            {
+                URI uri = new URI("http://" + getHost() + ":" + port);
+                DefaultMuleEventFactory muleEventFactory = new DefaultMuleEventFactory(new NettyMuleMessageFactory(muleContext), uri, flowConstruct, MessageExchangePattern.REQUEST_RESPONSE);
+                bootstrap.setPipelineFactory(new NettyServerPipelineFactory(asyncMessageProcessor, muleEventFactory));
+            }
+            catch (URISyntaxException e)
+            {
+                e.printStackTrace();
+            }
+
         }
     }
 
@@ -98,11 +112,21 @@ public class NettyMessageSource implements MessageSource, Initialisable, Startab
         this.port = port;
     }
 
+    public String getHost()
+    {
+        return host;
+    }
+
+    public void setHost(String host)
+    {
+        this.host = host;
+    }
+
     @Override
     public void start() throws MuleException
     {
         // Bind and start to accept incoming connections.
-        bootstrap.bind(new InetSocketAddress(port));
+        bootstrap.bind(new InetSocketAddress(getHost(), port));
     }
 
     @Override

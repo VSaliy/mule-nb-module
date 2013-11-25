@@ -79,12 +79,14 @@ public class AsyncMessageProcessorChain extends AbstractMessageProcessorChain im
             {
                 chainListener.firePostExceptionInvokeMessageProcessor(processedEvent, next, e);
                 callback.onException(processedEvent, e);
+                return;
             }
             catch (Exception e)
             {
                 final MessagingException messagingException = new MessagingException(event, e, next);
                 chainListener.firePostExceptionInvokeMessageProcessor(processedEvent, next, messagingException);
                 callback.onException(processedEvent, messagingException);
+                return;
             }
         }
         callback.onSuccess(processedEvent);

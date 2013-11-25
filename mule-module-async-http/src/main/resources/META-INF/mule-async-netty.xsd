@@ -76,6 +76,13 @@
                         </xsd:documentation>
                     </xsd:annotation>
                 </xsd:attribute>
+                <xsd:attribute name="host" type="xsd:string" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The URL to invoke configuration.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
                 <xsd:attribute name="method" type="xsd:string" >
                     <xsd:annotation>
                         <xsd:documentation>

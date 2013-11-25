@@ -1,5 +1,6 @@
 package org.mule.module.async.pattern.router;
 
+import org.mule.DefaultMuleEvent;
 import org.mule.api.GlobalNameableObject;
 import org.mule.api.MessagingException;
 import org.mule.api.MuleContext;
@@ -106,12 +107,6 @@ public class AsyncFlow extends AbstractFlowConstruct implements Pipeline, AsyncM
 
     private void createFlowMap()
     {
-        if (!flowMap.isEmpty())
-        {
-            logger.warn("flow map already populated");
-            return;
-        }
-
         DefaultMessageProcessorPathElement pipeLinePathElement = new DefaultMessageProcessorPathElement(null, getName());
         addMessageProcessorPathElements(pipeLinePathElement);
         flowMap = NotificationUtils.buildPaths(pipeLinePathElement);
@@ -224,7 +219,8 @@ public class AsyncFlow extends AbstractFlowConstruct implements Pipeline, AsyncM
     @Override
     public void process(MuleEvent event, MessageProcessorCallback callback)
     {
-        asyncChain.process(event, new FlowMessageProcessorCallback(callback));
+        final MuleEvent newEvent = new DefaultMuleEvent(event, this);
+        asyncChain.process(newEvent, new FlowMessageProcessorCallback(callback));
     }
 
     @Override
@@ -275,7 +271,14 @@ public class AsyncFlow extends AbstractFlowConstruct implements Pipeline, AsyncM
             try
             {
                 MuleEvent muleEvent = getExceptionListener().handleException(e, event);
-                parent.onSuccess(muleEvent);
+                if (muleEvent.getMessage().getExceptionPayload() != null)
+                {
+                    parent.onException(event, new MessagingException(event, e));
+                }
+                else
+                {
+                    parent.onSuccess(muleEvent);
+                }
             }
             catch (Exception exception)
             {
