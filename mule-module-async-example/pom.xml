@@ -42,6 +42,12 @@
                 <extensions>true</extensions>
                 <configuration>
                     <copyToAppsDirectory>true</copyToAppsDirectory>
+                    <inclusions>
+                        <inclusion>
+                            <groupId>org.mule.modules</groupId>
+                            <artifactId>mule-module-async-http</artifactId>
+                        </inclusion>
+                    </inclusions>
                 </configuration>
             </plugin>
             <plugin>
