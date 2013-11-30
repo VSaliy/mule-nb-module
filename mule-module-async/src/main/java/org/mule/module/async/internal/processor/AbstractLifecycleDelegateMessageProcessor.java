@@ -13,6 +13,7 @@ import org.mule.api.lifecycle.InitialisationException;
 import org.mule.api.lifecycle.Lifecycle;
 import org.mule.api.lifecycle.Startable;
 import org.mule.api.lifecycle.Stoppable;
+import org.mule.module.async.processor.AbstractAsyncMessageProcessor;
 
 import java.util.Collection;
 

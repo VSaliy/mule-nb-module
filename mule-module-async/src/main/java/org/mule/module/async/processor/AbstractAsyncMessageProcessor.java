@@ -1,19 +1,20 @@
 /**
  *
  */
-package org.mule.module.async.internal.processor;
+package org.mule.module.async.processor;
 
-import org.mule.api.MessagingException;
 import org.mule.api.MuleContext;
 import org.mule.api.MuleEvent;
 import org.mule.api.MuleException;
 import org.mule.api.construct.FlowConstruct;
 import org.mule.api.construct.FlowConstructAware;
 import org.mule.api.context.MuleContextAware;
-import org.mule.api.processor.MessageProcessor;
-import org.mule.module.async.processor.AsyncMessageProcessor;
-import org.mule.module.async.processor.MessageProcessorCallback;
+import org.mule.module.async.internal.processor.FutureMessageProcessorCallback;
+import org.mule.module.async.internal.processor.MuleEventFuture;
 
+/**
+ * Base class for AsyncMessage Processor. Adapts Synchronous Message Processors with Async Ones using A Future
+ */
 public abstract class AbstractAsyncMessageProcessor implements AsyncMessageProcessor, MuleContextAware, FlowConstructAware
 {
 
@@ -42,8 +43,6 @@ public abstract class AbstractAsyncMessageProcessor implements AsyncMessageProce
         return flowConstruct;
     }
 
-
-
     @Override
     public final MuleEvent process(MuleEvent event) throws MuleException
     {
@@ -52,28 +51,5 @@ public abstract class AbstractAsyncMessageProcessor implements AsyncMessageProce
         return future.get();
     }
 
-    public static void doProcess(MessageProcessor messageProcessor, MuleEvent event, MessageProcessorCallback callback)
-    {
-        if (messageProcessor instanceof AsyncMessageProcessor)
-        {
-            ((AsyncMessageProcessor) messageProcessor).process(event, callback);
-        }
-        else
-        {
-            try
-            {
-                MuleEvent process = messageProcessor.process(event);
-                callback.onSuccess(process);
-            }
-            catch (MuleException e)
-            {
-                callback.onException(event, e);
-            }
-            catch (Exception e)
-            {
-                callback.onException(event, new MessagingException(event, e));
-            }
-        }
-    }
 
 }

@@ -5,8 +5,8 @@ package org.mule.module.async.pattern.router;
 
 import org.mule.api.MuleEvent;
 import org.mule.api.processor.MessageProcessor;
-import org.mule.module.async.internal.processor.AbstractAsyncMessageProcessor;
-import org.mule.module.async.internal.processor.AsyncMessageProcessorHelper;
+import org.mule.module.async.processor.AbstractAsyncMessageProcessor;
+import org.mule.module.async.pattern.AsyncMessageProcessorHelper;
 import org.mule.module.async.processor.MessageProcessorCallback;
 
 public class AsyncFlowRef extends AbstractAsyncMessageProcessor

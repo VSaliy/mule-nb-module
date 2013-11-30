@@ -10,6 +10,9 @@ import org.mule.module.async.processor.MessageProcessorCallback;
 
 import java.util.Map;
 
+/**
+ * Class Used inside devkit that adapts devkit AyncCallback into a Mule One
+ */
 public class DefaultAsyncCallback implements AsyncCallback
 {
 
@@ -33,8 +36,6 @@ public class DefaultAsyncCallback implements AsyncCallback
         }
 
         this.messageProcessorCallback.onSuccess(this.event);
-
-
     }
 
     @Override

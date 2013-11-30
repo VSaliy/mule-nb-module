@@ -9,15 +9,14 @@ import org.mule.api.MuleException;
 import org.mule.api.lifecycle.InitialisationException;
 import org.mule.api.lifecycle.Lifecycle;
 import org.mule.api.transport.PropertyScope;
-import org.mule.module.async.internal.processor.AbstractAsyncMessageProcessor;
 import org.mule.module.async.netty.utils.NettyUtils;
+import org.mule.module.async.processor.AbstractAsyncMessageProcessor;
 import org.mule.module.async.processor.MessageProcessorCallback;
 import org.mule.transport.http.HttpConnector;
 import org.mule.transport.http.HttpConstants;
 
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.client.FluentCaseInsensitiveStringsMap;
 import com.ning.http.client.Response;
 
@@ -77,9 +76,6 @@ public class NettyClient extends AbstractAsyncMessageProcessor implements Lifecy
             {
                 requestBuilder = asyncHttpClient.prepareDelete(url);
             }
-
-
-
             requestBuilder.execute(new ResponseAsyncCompletionHandler(event, callback));
         }
         catch (IOException e)
@@ -127,8 +123,9 @@ public class NettyClient extends AbstractAsyncMessageProcessor implements Lifecy
     @Override
     public void initialise() throws InitialisationException
     {
-        AsyncHttpClientConfig.Builder builder = new AsyncHttpClientConfig.Builder();
+
         asyncHttpClient = new AsyncHttpClient();
+
     }
 
     @Override

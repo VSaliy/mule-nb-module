@@ -5,7 +5,7 @@ import org.mule.api.MuleException;
 import java.util.Map;
 
 /**
- *
+ * Callback for devkit Connectors
  */
 public interface AsyncCallback
 {

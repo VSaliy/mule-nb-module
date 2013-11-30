@@ -1,7 +1,7 @@
 /**
  *
  */
-package org.mule.module.async.internal.processor;
+package org.mule.module.async.pattern;
 
 import org.mule.api.MuleEvent;
 import org.mule.api.MuleException;

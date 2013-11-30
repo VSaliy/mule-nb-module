@@ -15,7 +15,7 @@ import org.mule.api.lifecycle.InitialisationException;
 import org.mule.api.lifecycle.Startable;
 import org.mule.api.lifecycle.Stoppable;
 import org.mule.api.processor.MessageProcessor;
-import org.mule.api.source.MessageSource;
+import org.mule.module.async.AddressAwareMessageSource;
 import org.mule.module.async.internal.DefaultMuleEventFactory;
 import org.mule.module.async.processor.AsyncMessageProcessor;
 import org.mule.util.concurrent.NamedThreadFactory;
@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
-public class NettyMessageSource implements MessageSource, Initialisable, Startable, Stoppable, MuleContextAware, FlowConstructAware
+public class NettyMessageSource implements AddressAwareMessageSource, Initialisable, Startable, Stoppable, MuleContextAware, FlowConstructAware
 {
 
     private AsyncMessageProcessor asyncMessageProcessor;
@@ -89,8 +89,7 @@ public class NettyMessageSource implements MessageSource, Initialisable, Startab
 
             try
             {
-                URI uri = new URI("http://" + getHost() + ":" + port);
-                DefaultMuleEventFactory muleEventFactory = new DefaultMuleEventFactory(new NettyMuleMessageFactory(muleContext), uri, flowConstruct, MessageExchangePattern.REQUEST_RESPONSE);
+                DefaultMuleEventFactory muleEventFactory = new DefaultMuleEventFactory(new NettyMuleMessageFactory(muleContext), getUri(), flowConstruct, MessageExchangePattern.REQUEST_RESPONSE);
                 bootstrap.setPipelineFactory(new NettyServerPipelineFactory(asyncMessageProcessor, muleEventFactory));
             }
             catch (URISyntaxException e)
@@ -99,6 +98,11 @@ public class NettyMessageSource implements MessageSource, Initialisable, Startab
             }
 
         }
+    }
+
+    public URI getUri() throws URISyntaxException
+    {
+        return new URI(getAddress());
     }
 
 
@@ -145,5 +149,11 @@ public class NettyMessageSource implements MessageSource, Initialisable, Startab
     public void setMuleContext(MuleContext context)
     {
         this.muleContext = context;
+    }
+
+    @Override
+    public String getAddress()
+    {
+        return "http://" + getHost() + ":" + getPort();
     }
 }

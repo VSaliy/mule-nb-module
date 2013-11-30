@@ -14,6 +14,7 @@ import org.mule.api.routing.filter.Filter;
 import org.mule.config.i18n.MessageFactory;
 import org.mule.management.stats.RouterStatistics;
 import org.mule.module.async.internal.processor.AbstractLifecycleDelegateMessageProcessor;
+import org.mule.module.async.pattern.AsyncMessageProcessorHelper;
 import org.mule.module.async.processor.AsyncMessageProcessor;
 import org.mule.module.async.processor.MessageProcessorCallback;
 import org.mule.routing.MessageProcessorFilterPair;
@@ -86,11 +87,11 @@ public class AsyncChoiceRouter extends AbstractLifecycleDelegateMessageProcessor
         MessageProcessor selectedProcessors = selectProcessors(event);
         if (selectedProcessors != null)
         {
-            doProcess(selectedProcessors, event, callback);
+            AsyncMessageProcessorHelper.doProcess(selectedProcessors, event, callback);
         }
         else if (defaultProcessor != null)
         {
-            doProcess(defaultProcessor, event, callback);
+            AsyncMessageProcessorHelper.doProcess(defaultProcessor, event, callback);
         }
         else
         {
