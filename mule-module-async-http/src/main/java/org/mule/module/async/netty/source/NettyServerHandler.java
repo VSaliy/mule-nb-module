@@ -3,16 +3,20 @@ package org.mule.module.async.netty.source;
 import org.mule.api.MuleEvent;
 import org.mule.api.MuleException;
 import org.mule.api.MuleMessage;
+import org.mule.api.transport.PropertyScope;
 import org.mule.module.async.internal.MuleEventFactory;
 import org.mule.module.async.netty.utils.NettyUtils;
 import org.mule.module.async.processor.AsyncMessageProcessor;
 import org.mule.module.async.processor.MessageProcessorCallback;
+import org.mule.transport.http.HttpConnector;
 import org.mule.transport.http.HttpConstants;
 
 import java.nio.charset.Charset;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFutureListener;
@@ -68,7 +72,29 @@ public class NettyServerHandler extends SimpleChannelUpstreamHandler
                             content_type = "text/plain";
                         }
                         response.setHeader(HttpConstants.HEADER_CONTENT_TYPE, content_type);
-                        response.setContent(ChannelBuffers.copiedBuffer(message.getPayload().toString(), Charset.forName(result.getMessage().getEncoding())));
+                        Map<String, Object> headers = message.getOutboundProperty(HttpConnector.HTTP_HEADERS);
+                        if (headers != null)
+                        {
+                            for (Map.Entry<String, Object> header : headers.entrySet())
+                            {
+                                Object value = header.getValue();
+                                if (value instanceof Iterable)
+                                {
+                                    response.setHeader(header.getKey(), (Iterable) value);
+                                }
+                                else
+                                {
+                                    response.setHeader(header.getKey(), value);
+                                }
+                            }
+                        }
+                        ChannelBuffer content = ChannelBuffers.copiedBuffer(message.getPayload().toString(), Charset.forName(result.getMessage().getEncoding()));
+                        response.setContent(content);
+                        Integer status = message.getProperty(HttpConnector.HTTP_STATUS_PROPERTY, PropertyScope.OUTBOUND);
+                        if (status != null)
+                        {
+                            response.setStatus(HttpResponseStatus.valueOf(status));
+                        }
                         channel.write(response).addListener(ChannelFutureListener.CLOSE);
                     }
                     catch (Exception e)

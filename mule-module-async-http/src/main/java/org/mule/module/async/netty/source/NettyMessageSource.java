@@ -56,7 +56,7 @@ public class NettyMessageSource implements AddressAwareMessageSource, Initialisa
         // Configure the server.
         if (bootstrap == null)
         {
-            final NioServerSocketChannelFactory channelFactory;
+
 
             final ExecutorService bossExecutor = Executors.newCachedThreadPool(new NamedThreadFactory(
                     String.format("%s%s.boss", ThreadNameHelper.getPrefix(muleContext), "Netty"),
@@ -77,10 +77,9 @@ public class NettyMessageSource implements AddressAwareMessageSource, Initialisa
                                                                                  threadFactory,
                                                                                  new ThreadPoolExecutor.AbortPolicy()
             );
-
-            channelFactory = new NioServerSocketChannelFactory(bossExecutor,
-                                                               dispatcherExecutor,
-                                                               Runtime.getRuntime().availableProcessors() * 2);
+            final NioServerSocketChannelFactory channelFactory = new NioServerSocketChannelFactory(bossExecutor,
+                                                                                                   dispatcherExecutor,
+                                                                                                   Runtime.getRuntime().availableProcessors() * 2);
             bootstrap = new ServerBootstrap(channelFactory);
             // Enable TCP_NODELAY to handle pipelined requests without latency.
             bootstrap.setOption("child.tcpNoDelay", true);

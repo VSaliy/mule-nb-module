@@ -14,19 +14,25 @@ import org.mule.module.async.processor.AbstractAsyncMessageProcessor;
 import org.mule.module.async.processor.MessageProcessorCallback;
 import org.mule.transport.http.HttpConnector;
 import org.mule.transport.http.HttpConstants;
+import org.mule.util.concurrent.NamedThreadFactory;
+import org.mule.util.concurrent.ThreadNameHelper;
 
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.client.FluentCaseInsensitiveStringsMap;
 import com.ning.http.client.Response;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.jboss.netty.handler.codec.http.HttpMethod;
 
 public class NettyClient extends AbstractAsyncMessageProcessor implements Lifecycle
 {
 
+    public static final String TRANSFER_ENCODING_PROPERTY = "Transfer-Encoding";
     private String baseUrl;
     private String uri;
     private String method;
@@ -123,8 +129,16 @@ public class NettyClient extends AbstractAsyncMessageProcessor implements Lifecy
     @Override
     public void initialise() throws InitialisationException
     {
+        final ExecutorService bossExecutor = Executors.newCachedThreadPool(new NamedThreadFactory(
+                String.format("%s%s.boss", ThreadNameHelper.getPrefix(getMuleContext()), "NettyClient"),
+                getMuleContext().getExecutionClassLoader()
+        ));
+        AsyncHttpClientConfig cf = new AsyncHttpClientConfig.Builder()
+                .setFollowRedirects(true)
+                .setExecutorService(bossExecutor)
+                .build();
 
-        asyncHttpClient = new AsyncHttpClient();
+        asyncHttpClient = new AsyncHttpClient(cf);
 
     }
 
@@ -158,8 +172,10 @@ public class NettyClient extends AbstractAsyncMessageProcessor implements Lifecy
             event.getMessage().setPayload(response.getResponseBody());
             final FluentCaseInsensitiveStringsMap headers = response.getHeaders();
             final String contentType = response.getContentType();
+            headers.remove(TRANSFER_ENCODING_PROPERTY);
             event.getMessage().setProperty(HttpConnector.HTTP_HEADERS, headers, PropertyScope.OUTBOUND);
             event.getMessage().setProperty(HttpConstants.HEADER_CONTENT_TYPE, contentType, PropertyScope.OUTBOUND);
+            event.getMessage().setProperty(HttpConnector.HTTP_STATUS_PROPERTY, response.getStatusCode(), PropertyScope.OUTBOUND);
             event.getMessage().setEncoding(nettyUtils.getEncoding(contentType));
             callback.onSuccess(event);
             return response;
