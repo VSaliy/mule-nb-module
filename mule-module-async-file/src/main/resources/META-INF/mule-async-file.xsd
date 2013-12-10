@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xsd:schema xmlns="http://www.mulesoft.org/schema/mule/async-file" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:mule="http://www.mulesoft.org/schema/mule/core"
+            xmlns:schemadoc="http://www.mulesoft.org/schema/mule/schemadoc"
+            targetNamespace="http://www.mulesoft.org/schema/mule/async-file"
+            elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:import namespace="http://www.springframework.org/schema/beans"
+                schemaLocation="http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"/>
+    <xsd:import namespace="http://www.mulesoft.org/schema/mule/core"
+                schemaLocation="http://www.mulesoft.org/schema/mule/core/3.4/mule.xsd"/>
+    <xsd:import namespace="http://www.mulesoft.org/schema/mule/schemadoc"
+                schemaLocation="http://www.mulesoft.org/schema/mule/schemadoc/3.4/mule-schemadoc.xsd"/>
+
+    <xsd:annotation>
+        <xsd:documentation>
+            Non-blocking file processing
+        </xsd:documentation>
+        <xsd:appinfo>
+            <schemadoc:short-name>File</schemadoc:short-name>
+            <schemadoc:page-title>File Module</schemadoc:page-title>
+        </xsd:appinfo>
+    </xsd:annotation>
+
+
+    <!-- File Module -->
+
+    <xsd:element name="file-writer" type="fileWriterProcessorType"
+                 substitutionGroup="mule:abstract-message-processor">
+        <xsd:annotation>
+            <xsd:documentation>
+                A rest routing message processor.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="fileWriterProcessorType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractMessageProcessorType">
+                <xsd:attribute name="path" type="mule:nonBlankString" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Path of the file to write
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="file-source" type="fileMessageSourceType" substitutionGroup="mule:abstract-message-source">
+        <xsd:annotation>
+            <xsd:documentation>
+                A file routing message processor.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="fileMessageSourceType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractMessageSourceType">
+                <xsd:attribute name="path" type="xsd:string" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Path of the source folder
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="file-to-string" type="mule:abstractTransformerType"
+                 substitutionGroup="mule:abstract-transformer">
+        <xsd:annotation>
+            <xsd:documentation>
+                Non blocking transformer from file to string
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+</xsd:schema>
