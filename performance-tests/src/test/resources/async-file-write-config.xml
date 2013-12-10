@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:async="http://www.mulesoft.org/schema/mule/async"
+      xmlns:file="http://www.mulesoft.org/schema/mule/async-file"
+      xmlns:vm="http://www.mulesoft.org/schema/mule/async-vm"
+      xmlns:spring="http://www.springframework.org/schema/beans"
+      xsi:schemaLocation="
+      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+      http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/async http://www.mulesoft.org/schema/mule/async/current/mule-async.xsd
+        http://www.mulesoft.org/schema/mule/async-file http://www.mulesoft.org/schema/mule/async-file/current/mule-async-file.xsd
+        http://www.mulesoft.org/schema/mule/async-vm http://www.mulesoft.org/schema/mule/async-vm/current/mule-async-vm.xsd">
+
+    <spring:bean id="objectStore" class="org.mule.util.store.SimpleMemoryObjectStore"/>
+
+    <async:flow name="test" initialState="stopped">
+        <!--//TODO(pablo.kraan):poll does not work on async flow-->
+        <vm:memory-source store-ref="objectStore"/>
+
+        <file:file-writer path="/tmp/testOut/zaraza#[flowVars['key']].txt"/>
+
+        <component class="org.mule.performance.AbstractFileWriteLoadTestCase$TestCounter"/>
+    </async:flow>
+
+</mule>

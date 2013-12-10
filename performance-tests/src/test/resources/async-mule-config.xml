@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:async="http://www.mulesoft.org/schema/mule/async"
+      xmlns:netty="http://www.mulesoft.org/schema/mule/async-netty"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/async http://www.mulesoft.org/schema/mule/async/current/mule-async.xsd
+        http://www.mulesoft.org/schema/mule/async-netty http://www.mulesoft.org/schema/mule/async-netty/current/mule-async-netty.xsd">
+
+    <async:flow name="test">
+        <netty:netty-source host="localhost" port="7575"/>
+        <!--<logger level="ERROR" message="Payload is #[payload]"/>-->
+        <netty:netty-client baseUrl="http://www.google.com.ar" uri="#[payload]"/>
+        <!--<logger message="#[payload]"/>-->
+    </async:flow>
+
+</mule>

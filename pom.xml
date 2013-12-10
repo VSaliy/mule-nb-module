@@ -14,6 +14,7 @@
         <module>mule-module-async-file</module>
         <module>mule-module-async-vm</module>
         <module>mule-module-async-example</module>
+        <module>performance-tests</module>
     </modules>
 
     <properties>

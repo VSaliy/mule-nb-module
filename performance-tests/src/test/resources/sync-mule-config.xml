@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+
+    <!--<pattern:http-proxy name="direct-http-proxy"-->
+                        <!--inboundAddress="http://localhost:7575" outboundAddress="http://www.google.com.ar" />-->
+    <flow name="test">
+        <!--<vm:inbound-endpoint path="testInput" exchange-pattern="request-response"/>-->
+        <http:inbound-endpoint host="localhost" port="7575"/>
+        <!--<logger level="ERROR" message="Payload is #[payload]"/>-->
+        <!--<netty:netty-client baseUrl="http://www.google.com.ar" uri="#[payload]"/>-->
+        <!--<http:outbound-endpoint address="http://localhost:7575"/>-->
+        <http:outbound-endpoint address="http://google.com.ar" method="GET"/>
+        <logger level="ERROR"/>
+        <!--<logger message="#[payload]"/>-->
+    </flow>
+
+</mule>
