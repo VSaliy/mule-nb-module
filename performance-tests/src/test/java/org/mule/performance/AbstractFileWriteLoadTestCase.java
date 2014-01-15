@@ -29,8 +29,8 @@ import org.junit.Test;
  */
 public abstract class AbstractFileWriteLoadTestCase extends FunctionalTestCase
 {
-    public static final int THREAD_COUNT = 50;
-    public static final int MESSAGE_PER_THREAD = 50;
+    public static final int THREAD_COUNT = 1;
+    public static final int MESSAGE_PER_THREAD = 1;
     public static final int EXPECTED_RESPONSES = THREAD_COUNT * MESSAGE_PER_THREAD;
 
     public static final Object lock = new Object();

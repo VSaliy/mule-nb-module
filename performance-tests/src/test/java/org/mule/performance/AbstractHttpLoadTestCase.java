@@ -19,8 +19,8 @@ import org.junit.Test;
 
 public abstract class AbstractHttpLoadTestCase extends FunctionalTestCase
 {
-    public static final int THREAD_COUNT = 20;
-    public static final int MESSAGE_PER_THREAD = 200;
+    public static final int THREAD_COUNT = 1;
+    public static final int MESSAGE_PER_THREAD = 1;
 
     @Test
     public void testName() throws Exception

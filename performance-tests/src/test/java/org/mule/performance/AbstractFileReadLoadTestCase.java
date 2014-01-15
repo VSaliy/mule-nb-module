@@ -24,11 +24,12 @@ import org.junit.Test;
 
 public abstract class AbstractFileReadLoadTestCase extends FunctionalTestCase
 {
-    public static final int THREAD_COUNT = 100;
-    public static final int MESSAGE_PER_THREAD = 20;
+
+    public static final int THREAD_COUNT = 1;
+    public static final int MESSAGE_PER_THREAD = 1;
     public static final int EXPECTED_RESPONSES = THREAD_COUNT * MESSAGE_PER_THREAD;
 
-    public static final Object lock = new Object();
+
     public static volatile int responseCount = 0;
     public static String SAMPLE_MESSAGE;
 
@@ -103,13 +104,23 @@ public abstract class AbstractFileReadLoadTestCase extends FunctionalTestCase
         {
             for (int message = 0; message < MESSAGE_PER_THREAD; message++)
             {
-                File file = new File("/tmp/testIn/zaraza" + requestCount.addAndGet(1) + ".txt");
+                String directory = "/tmp/testIn/";
+                File container = new File(directory);
+                container.deleteOnExit();
+                if (!container.exists())
+                {
+                    container.mkdirs();
+
+
+                }
+                File file = new File(directory + "zaraza" + requestCount.addAndGet(1) + ".txt");
                 FileUtils.writeStringToFile(file, SAMPLE_MESSAGE);
             }
 
             return MESSAGE_PER_THREAD;
         }
     }
+
     private void verifyData() throws MuleException
     {
         PollingProber prober = new PollingProber(30000, 10);
@@ -151,10 +162,9 @@ public abstract class AbstractFileReadLoadTestCase extends FunctionalTestCase
         public Object process(Object value)
         {
 
-            synchronized (lock)
-            {
-                responseCount++;
-            }
+
+            responseCount++;
+
             return value;
         }
     }

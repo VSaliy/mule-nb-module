@@ -2,17 +2,17 @@
 <mule xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xmlns:async="http://www.mulesoft.org/schema/mule/async"
-      xmlns:netty="http://www.mulesoft.org/schema/mule/async-netty"
+      xmlns:file="http://www.mulesoft.org/schema/mule/async-file"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
         http://www.mulesoft.org/schema/mule/async http://www.mulesoft.org/schema/mule/async/current/mule-async.xsd
-        http://www.mulesoft.org/schema/mule/async-netty http://www.mulesoft.org/schema/mule/async-netty/current/mule-async-netty.xsd">
+        http://www.mulesoft.org/schema/mule/async-file http://www.mulesoft.org/schema/mule/async-file/current/mule-async-file.xsd">
 
     <async:flow name="test">
-        <netty:file-source path="/tmp/testIn"/>
+        <file:file-source path="/tmp/testIn"/>
 
         <!--<object-to-string-transformer/>-->
 
-        <netty:file-to-string/>
+        <file:file-to-string/>
 
         <component class="org.mule.performance.AbstractFileReadLoadTestCase$TestCounter"/>
     </async:flow>
