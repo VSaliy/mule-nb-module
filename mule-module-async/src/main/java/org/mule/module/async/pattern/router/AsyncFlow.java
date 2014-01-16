@@ -231,6 +231,12 @@ public class AsyncFlow extends AbstractFlowConstruct implements Pipeline, AsyncM
         return future.get();
     }
 
+    @Override
+    public boolean isSynchronous()
+    {
+        return this.processingStrategy.getClass().equals(SynchronousProcessingStrategy.class);
+    }
+
     private class NBStageNameSource implements ProcessingStrategy.StageNameSource
     {
 

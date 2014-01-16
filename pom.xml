@@ -18,7 +18,7 @@
     </modules>
 
     <properties>
-        <mule.version>3.5.0-M2-SNAPSHOT</mule.version>
+        <mule.version>3.5.0-cascade</mule.version>
         <mule.devkit.version>3.5.0-async-SNAPSHOT</mule.devkit.version>
         <junit.version>4.9</junit.version>
         <mockito.version>1.8.2</mockito.version>

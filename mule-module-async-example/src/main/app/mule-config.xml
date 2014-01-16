@@ -13,20 +13,20 @@
 
     <async:flow name="test">
         <netty:netty-source host="localhost" port="1234"/>
-        <!--<logger message="Payload is #[payload]"/>-->
-        <netty:netty-client baseUrl="http://www.mulesoft.com/" uri="#[payload]"/>
-        <!--<logger message="#[payload]"/>-->
+
+        <netty:netty-client baseUrl="http://www.google.com.ar/" uri="#[payload]"/>
+
     </async:flow>
 
 
 
     <flow name="proxyFlow1">
         <http:inbound-endpoint exchange-pattern="request-response" host="localhost" port="7070" />
-        <http:outbound-endpoint exchange-pattern="request-response" address="http://www.mulesoft.com/" path="/#[payload]" method="GET" />
+        <http:outbound-endpoint exchange-pattern="request-response" address="http://www.google.com.ar/" path="/#[payload]" method="GET" />
         <http:response-builder status="200"  contentType="#[flowVars['Content-Type']]"/>
     </flow>
 
     <pattern:http-proxy name="direct-http-proxy"
-                        inboundAddress="http://localhost:7575" outboundAddress="http://www.mulesoft.com/" />
+                        inboundAddress="http://localhost:7575" outboundAddress="http://www.google.com.ar/" />
 
 </mule>

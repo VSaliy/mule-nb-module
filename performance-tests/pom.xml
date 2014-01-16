@@ -11,14 +11,6 @@
     <name>Performance tests</name>
     <description>Module containing performance tests comparing sync/async message processors</description>
 
-    <properties>
-        <mule.version>3.5.0-bighorn</mule.version>
-        <mule.devkit.version>3.5.0-async-SNAPSHOT</mule.devkit.version>
-        <junit.version>4.9</junit.version>
-        <mockito.version>1.8.2</mockito.version>
-        <jdk.version>1.7</jdk.version>
-        <devkit.studio.package.skip>true</devkit.studio.package.skip>
-    </properties>
 
     <build>
         <plugins>

@@ -136,7 +136,7 @@ public class NettyMessageSource implements AddressAwareMessageSource, Initialisa
     @Override
     public void stop() throws MuleException
     {
-
+        bootstrap.shutdown();
     }
 
     @Override

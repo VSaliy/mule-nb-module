@@ -83,6 +83,7 @@ public class NettyClient extends AbstractAsyncMessageProcessor implements Lifecy
                 requestBuilder = asyncHttpClient.prepareDelete(url);
             }
             requestBuilder.execute(new ResponseAsyncCompletionHandler(event, callback));
+
         }
         catch (IOException e)
         {
@@ -136,7 +137,10 @@ public class NettyClient extends AbstractAsyncMessageProcessor implements Lifecy
         AsyncHttpClientConfig cf = new AsyncHttpClientConfig.Builder()
                 .setFollowRedirects(true)
                 .setExecutorService(bossExecutor)
+                .setKeepAlive(false)
                 .build();
+
+
 
         asyncHttpClient = new AsyncHttpClient(cf);
 
