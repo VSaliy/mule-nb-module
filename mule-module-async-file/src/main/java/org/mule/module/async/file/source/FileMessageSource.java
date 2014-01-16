@@ -20,7 +20,6 @@ import org.mule.transport.DefaultMuleMessageFactory;
 import org.mule.util.concurrent.ConcurrentHashSet;
 import org.mule.util.concurrent.NamedThreadFactory;
 import org.mule.util.concurrent.ThreadNameHelper;
-import org.mule.util.lock.LockFactory;
 
 import java.io.File;
 import java.net.URI;
@@ -40,9 +39,11 @@ public class FileMessageSource implements AddressAwareMessageSource, Initialisab
     private Thread watcherWorker;
     private DefaultMuleEventFactory muleEventFactory;
     private Path dirPath;
-    private LockFactory lockFactory;
-
     private ExecutorService dispatcherExecutorService;
+
+    //Convert this two
+    public static final int DEFAULT_MAX_CONCURRENT_FILES = Runtime.getRuntime().availableProcessors() * 2;
+    public static final int DEFAULT_POLLING_INTERVAL = 1000;
 
     public FileMessageSource()
     {
@@ -94,9 +95,8 @@ public class FileMessageSource implements AddressAwareMessageSource, Initialisab
     public void start() throws MuleException
     {
         dirPath = Paths.get(path);
-
         watcherWorker = new Thread(new FolderPoller());
-        watcherWorker.setName("folder-poller");
+        watcherWorker.setName("Folder-Listener");
         watcherWorker.start();
     }
 
@@ -116,7 +116,6 @@ public class FileMessageSource implements AddressAwareMessageSource, Initialisab
     public void setMuleContext(MuleContext context)
     {
         this.muleContext = context;
-        lockFactory = muleContext.getLockFactory();
     }
 
     @Override
@@ -128,16 +127,21 @@ public class FileMessageSource implements AddressAwareMessageSource, Initialisab
     public class FolderPoller implements Runnable
     {
 
+        private Object monitor = new Object();
+        private ConcurrentHashSet processingFiles = new ConcurrentHashSet();
+
         public void run()
         {
             while (true)
             {
-                poll();
-
+                if (checkMaxConcurrentFiles())
+                {
+                    poll();
+                }
                 try
                 {
                     //TODO(pablo.kraan): add a poll attribute
-                    Thread.sleep(1000);
+                    Thread.sleep(DEFAULT_POLLING_INTERVAL);
                 }
                 catch (InterruptedException e)
                 {
@@ -147,17 +151,28 @@ public class FileMessageSource implements AddressAwareMessageSource, Initialisab
             }
         }
 
+        private boolean checkMaxConcurrentFiles()
+        {
+            return processingFiles.size() < DEFAULT_MAX_CONCURRENT_FILES;
+        }
+
         private void poll()
         {
-            File folder = new File(path);
-            ConcurrentHashSet processingFiles = new ConcurrentHashSet();
-
+            final File folder = new File(path);
             try
             {
-                File[] files = folder.listFiles();
+                final File[] files = folder.listFiles();
 
-                for (File file : files)
+                for (int i = 0; i < files.length; i++)
                 {
+                    while (!checkMaxConcurrentFiles())
+                    {
+                        synchronized (monitor)
+                        {
+                            monitor.wait();
+                        }
+                    }
+                    File file = files[i];
 
                     // don't process directories
                     if (file.isFile())
@@ -170,10 +185,7 @@ public class FileMessageSource implements AddressAwareMessageSource, Initialisab
                             continue;
                         }
 
-                        if (file.exists())
-                        {
-                            processFile(file, processingFiles);
-                        }
+                        processFile(file);
                     }
                 }
             }
@@ -184,7 +196,7 @@ public class FileMessageSource implements AddressAwareMessageSource, Initialisab
             }
         }
 
-        private void processFile(final File file, final ConcurrentHashSet processingFiles)
+        private void processFile(final File file)
         {
 
             //TODO(pablo.kraan): add fileAge
@@ -206,24 +218,29 @@ public class FileMessageSource implements AddressAwareMessageSource, Initialisab
                     {
                         public void onSuccess(MuleEvent event)
                         {
-                            //fileLock.unlock();
-                            boolean deleted = file.delete();
-                            //System.out.println(String.format("File '%s' deleted: %s", path.toString(), deleted));
 
-                            processingFiles.remove(file.getName());
-
-
+                            onFileProcessed(file);
                         }
 
                         public void onException(MuleEvent event, MuleException e)
                         {
-                            processingFiles.remove(file.getName());
+                            onFileProcessed(file);
                         }
                     });
 
                     return null;
                 }
             });
+        }
+
+        private void onFileProcessed(File file)
+        {
+            file.delete();
+            processingFiles.remove(file.getName());
+            synchronized (monitor)
+            {
+                monitor.notifyAll();
+            }
         }
     }
 

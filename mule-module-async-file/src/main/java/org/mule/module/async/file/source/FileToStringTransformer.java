@@ -35,37 +35,32 @@ public class FileToStringTransformer extends AbstractAsyncMessageProcessor imple
     public void process(MuleEvent event, MessageProcessorCallback callback)
     {
 
-
-        Path absolutePath = (Path) event.getMessage().getPayload();
-
-        AsynchronousFileChannel fileChannel = null;
+        AsynchronousFileChannel fileChannel;
         try
         {
+            Path absolutePath = (Path) event.getMessage().getPayload();
             fileChannel = AsynchronousFileChannel.open(Paths.get(absolutePath.toUri()), EnumSet.of(StandardOpenOption.READ), ioExecutorService);
+            //TODO(pablo.kraan): need to manage the case where the buffer is not big engouh to hold the full file
+            //TODO(pablo.kraan): need support for streaming?
+            ByteBuffer buf = ByteBuffer.allocate(1024);
+            fileChannel.read(buf, 0, fileChannel, new FileReadCompletionHandler(event, callback, buf));
         }
-        catch (IOException e)
+        catch (Exception e)
         {
             callback.onException(event, new DefaultMuleException(e));
         }
 
-        //TODO(pablo.kraan): need to manage the case where the buffer is not big engouh to hold the full file
-        //TODO(pablo.kraan): need support for streaming?
-        ByteBuffer buf = ByteBuffer.allocate(1024);
 
-
-        //System.out.println("Starting read....");
-        fileChannel.read(buf, 0, fileChannel, new FileReadCompletionHandler(event, callback, absolutePath, buf));
-        //System.out.println("Read started");
     }
 
     public void initialise() throws InitialisationException
     {
-        ioExecutorService = Executors.newFixedThreadPool(8, new NamedThreadFactory(
+        ioExecutorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2, new NamedThreadFactory(
                 String.format("%s%s.io", ThreadNameHelper.getPrefix(getMuleContext()), "FileToString"),
                 getMuleContext().getExecutionClassLoader()
         ));
 
-        dispatcherExecutorService = Executors.newFixedThreadPool(8, new NamedThreadFactory(
+        dispatcherExecutorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2, new NamedThreadFactory(
                 String.format("%s%s.dispatcher", ThreadNameHelper.getPrefix(getMuleContext()), "FileToString"),
                 getMuleContext().getExecutionClassLoader()
         ));
@@ -77,49 +72,57 @@ public class FileToStringTransformer extends AbstractAsyncMessageProcessor imple
 
         private MuleEvent event;
         private MessageProcessorCallback callback;
-        private Path path;
         private StringBuilder builder;
         private ByteBuffer buffer;
-        int pos = 0;
+        private int pos = 0;
 
-        public FileReadCompletionHandler(MuleEvent event, MessageProcessorCallback callback, Path path, ByteBuffer buffer)
+        public FileReadCompletionHandler(MuleEvent event, MessageProcessorCallback callback, ByteBuffer buffer)
         {
             this.event = event;
             this.callback = callback;
-            this.path = path;
-            builder = new StringBuilder();
-
+            this.builder = new StringBuilder();
             this.buffer = buffer;
         }
 
-        public void completed(Integer result, AsynchronousFileChannel attachment)
+        public void completed(Integer result, AsynchronousFileChannel channel)
         {
-            System.out.println("Thread name: " + Thread.currentThread().getName());
+            // System.out.println("Thread name: " + Thread.currentThread().getName());
             //System.out.println("Bytes read = " + result);
             if (result != -1)
             {
-
                 builder.append(new String(buffer.array()));
-
                 pos += result;  // don't read the same text again.
-                ////System.out.println(new String(buffer.array()));
                 buffer.clear();  // reset the buffer so you can read more.
-
                 // initiate another asynchronous read, with this.
-                attachment.read(buffer, pos, attachment, this);
+                channel.read(buffer, pos, channel, this);
             }
             else
             {
+                close(channel);
+                final String payload = builder.toString();
                 dispatcherExecutorService.submit(new Callable<Void>()
                 {
                     public Void call() throws Exception
                     {
-                        event.getMessage().setPayload(builder.toString());
+                        event.getMessage().setPayload(payload);
                         callback.onSuccess(event);
-
                         return null;
                     }
                 });
+                builder = null;
+
+            }
+        }
+
+        private void close(AsynchronousFileChannel attachment)
+        {
+            try
+            {
+                attachment.close();
+            }
+            catch (IOException e)
+            {
+
             }
         }
 

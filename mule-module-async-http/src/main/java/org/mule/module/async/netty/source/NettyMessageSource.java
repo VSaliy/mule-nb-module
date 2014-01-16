@@ -71,7 +71,8 @@ public class NettyMessageSource implements AddressAwareMessageSource, Initialisa
             final ThreadingProfile tp = muleContext.getDefaultMessageDispatcherThreadingProfile();
 
 
-            final ThreadPoolExecutor dispatcherExecutor = new ThreadPoolExecutor(32, 32, tp.getThreadTTL(),
+            final ThreadPoolExecutor dispatcherExecutor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors() * 2,
+                                                                                 Runtime.getRuntime().availableProcessors() * 2, tp.getThreadTTL(),
                                                                                  TimeUnit.MILLISECONDS,
                                                                                  new ArrayBlockingQueue<Runnable>(1000),
                                                                                  threadFactory,

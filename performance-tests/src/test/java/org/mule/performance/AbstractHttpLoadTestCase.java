@@ -19,6 +19,7 @@ import org.junit.Test;
 
 public abstract class AbstractHttpLoadTestCase extends FunctionalTestCase
 {
+
     public static final int THREAD_COUNT = 1;
     public static final int MESSAGE_PER_THREAD = 1;
 
@@ -40,24 +41,9 @@ public abstract class AbstractHttpLoadTestCase extends FunctionalTestCase
 
     private void generateLoad(int threadCount) throws InterruptedException, ExecutionException
     {
-        final AtomicInteger requestCount = new AtomicInteger(1);
-        Collection<Callable<Integer>> solvers = new ArrayList<Callable<Integer>>(threadCount);
+        final Collection<Callable<Integer>> solvers = new ArrayList<Callable<Integer>>(threadCount);
         for (int i = 0; i < threadCount; i++)
         {
-            //solvers.add(new Callable<Integer>()
-            //{
-            //    public Integer call() throws Exception
-            //    {
-            //        LocalMuleClient client = muleContext.getClient();
-            //
-            //        for (int message = 0; message < MESSAGE_PER_THREAD; message++)
-            //        {
-            //            client.send("vm://testInput", requestCount.addAndGet(1), null);
-            //        }
-            //
-            //        return MESSAGE_PER_THREAD;
-            //    }
-            //});
             solvers.add(new LoadTestTask(i));
         }
         ExecutorService exec = Executors.newFixedThreadPool(threadCount);

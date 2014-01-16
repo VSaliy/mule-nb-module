@@ -8,7 +8,7 @@
         http://www.mulesoft.org/schema/mule/async-file http://www.mulesoft.org/schema/mule/async-file/current/mule-async-file.xsd">
 
     <async:flow name="test">
-        <file:file-source path="/tmp/testIn"/>
+        <file:file-source path="${directory}"/>
 
         <!--<object-to-string-transformer/>-->
 
